@@ -1,0 +1,13 @@
+# Customize table headers
+column_names:
+    ID: ID
+    t: t
+    var_name: variable_name
+    var_value: variable_value
+
+value_types:
+    # enter the feature type that you would like to override in the following format:
+    FIRST_WARDID: Categorical
+    MedA:
+        AMOUNT: Numeric
+        ROUTE: Categorical
