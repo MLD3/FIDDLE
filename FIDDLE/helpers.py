@@ -17,100 +17,10 @@ def print_header(*content, char='='):
     print(*content)
     print(char * 80, flush=True)
 
-######
-# Post-filter: feature selection classes
-######
-
-class FrequencyThreshold_temporal(
-    sklearn.base.BaseEstimator,
-    sklearn.feature_selection.base.SelectorMixin
-):
-    def __init__(self, threshold=0., L=None):
-        assert L is not None
-        self.threshold = threshold
-        self.L = L
-    
-    def fit(self, X, y=None):
-        # Reshape to be 3-dimensional array
-        NL, D = X.shape
-        X = X.reshape((int(NL/self.L), self.L, D))
-        
-        # Collapse time dimension, generating NxD matrix
-        X_notalways0 = X.any(axis=1)
-        X_notalways1 = (1-X).any(axis=1)
-        if hasattr(X, "toarray"):
-            X_notalways0 = X_notalways0.toarray()
-            X_notalways1 = X_notalways1.toarray()
-        if hasattr(X, "todense"):
-            X_notalways0 = X_notalways0.todense()
-            X_notalways1 = X_notalways1.todense()
-        
-        self.freqs_notalways0 = np.mean(X_notalways0, axis=0)
-        self.freqs_notalways1 = np.mean(X_notalways1, axis=0)
-        return self
-
-    def _get_support_mask(self):
-        return np.logical_and(
-            self.freqs_notalways0 > self.threshold,
-            self.freqs_notalways1 > self.threshold,
-        )
-
-# Keep only first feature in a pairwise perfectly correlated feature group
-class CorrelationSelector(
-    sklearn.base.BaseEstimator,
-    sklearn.feature_selection.base.SelectorMixin,
-):
-    def __init__(self):
-        super().__init__()
-    
-    def fit(self, X, y=None):
-        if hasattr(X, "toarray"):   # sparse matrix
-            X = X.toarray()
-        if hasattr(X, "todense"):   # sparse matrix
-            X = X.todense()
-        
-        # Calculate correlation matrix
-        # Keep only lower triangular matrix
-        self.corr_matrix = np.corrcoef(X.T)
-        np.fill_diagonal(self.corr_matrix, 0)
-        self.corr_matrix *= np.tri(*self.corr_matrix.shape)
-        
-        # get absolute value
-        corr = abs(self.corr_matrix)
-        
-        # coefficient close to 1 means perfectly correlated
-        # Compare each feature to previous feature (smaller index) to see if they have correlation of 1
-        to_drop = np.isclose(corr, 1.0).sum(axis=1).astype(bool)
-        self.to_keep = ~to_drop
-        
-        return self
-
-    def _get_support_mask(self):
-        return self.to_keep
-    
-    def get_feature_aliases(self, feature_names):
-        feature_names = [str(n) for n in feature_names]
-        corr_matrix = self.corr_matrix
-        flags = np.isclose(abs(corr_matrix), 1.0)
-        alias_map = defaultdict(list)
-        for i in range(1, corr_matrix.shape[0]):
-            for j in range(i):
-                if flags[i,j]:
-                    if np.isclose(corr_matrix[i,j], 1.0):
-                        alias_map[feature_names[j]].append(feature_names[i])
-                    elif np.isclose(corr_matrix[i,j], -1.0):
-                        alias_map[feature_names[j]].append('~{' + feature_names[i] + '}')
-                    else:
-                        assert False
-
-                    # Only save alias for first in the list
-                    break
-        return dict(alias_map)
-
 
 ######
+# Transform
 ######
-
 
 def get_unique_variables(df):
     return sorted(df[var_col].unique())
@@ -193,7 +103,9 @@ def is_numeric(v):
 ######
 
 def _get_time_bins(T, dt):
-    return np.arange(0, T+dt, dt)
+    # Defines the boundaries of time bins [0, dt, 2*dt, ..., k*dt] 
+    # where k*dt <= T and (k+1)*dt > T
+    return np.arange(0, dt*(T//dt+1), dt)
 
 def _get_time_bins_index(T, dt):
     return pd.Index(pd.interval_range(start=0, end=T, freq=dt, closed='left'))
@@ -305,3 +217,95 @@ def check_imputed_output(df_v):
         assert pd.isnull(x[:(last_null_idx+1)]).all() # all values up to here are nan
         assert (~pd.isnull(x[(last_null_idx+1):])).all() # all values after here are not nan
     return
+
+
+######
+# Post-filter: feature selection classes
+######
+
+class FrequencyThreshold_temporal(
+    sklearn.base.BaseEstimator,
+    sklearn.feature_selection.base.SelectorMixin
+):
+    def __init__(self, threshold=0., L=None):
+        assert L is not None
+        self.threshold = threshold
+        self.L = L
+    
+    def fit(self, X, y=None):
+        # Reshape to be 3-dimensional array
+        NL, D = X.shape
+        X = X.reshape((int(NL/self.L), self.L, D))
+        
+        # Collapse time dimension, generating NxD matrix
+        X_notalways0 = X.any(axis=1)
+        X_notalways1 = (1-X).any(axis=1)
+        if hasattr(X, "toarray"):
+            X_notalways0 = X_notalways0.toarray()
+            X_notalways1 = X_notalways1.toarray()
+        if hasattr(X, "todense"):
+            X_notalways0 = X_notalways0.todense()
+            X_notalways1 = X_notalways1.todense()
+        
+        self.freqs_notalways0 = np.mean(X_notalways0, axis=0)
+        self.freqs_notalways1 = np.mean(X_notalways1, axis=0)
+        return self
+
+    def _get_support_mask(self):
+        return np.logical_and(
+            self.freqs_notalways0 > self.threshold,
+            self.freqs_notalways1 > self.threshold,
+        )
+
+# Keep only first feature in a pairwise perfectly correlated feature group
+class CorrelationSelector(
+    sklearn.base.BaseEstimator,
+    sklearn.feature_selection.base.SelectorMixin,
+):
+    def __init__(self):
+        super().__init__()
+    
+    def fit(self, X, y=None):
+        if hasattr(X, "toarray"):   # sparse matrix
+            X = X.toarray()
+        if hasattr(X, "todense"):   # sparse matrix
+            X = X.todense()
+        
+        # Calculate correlation matrix
+        # Keep only lower triangular matrix
+        self.corr_matrix = np.corrcoef(X.T)
+        np.fill_diagonal(self.corr_matrix, 0)
+        self.corr_matrix *= np.tri(*self.corr_matrix.shape)
+        
+        # get absolute value
+        corr = abs(self.corr_matrix)
+        
+        # coefficient close to 1 means perfectly correlated
+        # Compare each feature to previous feature (smaller index) to see if they have correlation of 1
+        to_drop = np.isclose(corr, 1.0).sum(axis=1).astype(bool)
+        self.to_keep = ~to_drop
+        
+        return self
+
+    def _get_support_mask(self):
+        return self.to_keep
+    
+    def get_feature_aliases(self, feature_names):
+        feature_names = [str(n) for n in feature_names]
+        corr_matrix = self.corr_matrix
+        flags = np.isclose(abs(corr_matrix), 1.0)
+        alias_map = defaultdict(list)
+        for i in range(1, corr_matrix.shape[0]):
+            for j in range(i):
+                if flags[i,j]:
+                    if np.isclose(corr_matrix[i,j], 1.0):
+                        alias_map[feature_names[j]].append(feature_names[i])
+                    elif np.isclose(corr_matrix[i,j], -1.0):
+                        alias_map[feature_names[j]].append('~{' + feature_names[i] + '}')
+                    else:
+                        assert False
+
+                    # Only save alias for first in the list
+                    break
+        return dict(alias_map)
+

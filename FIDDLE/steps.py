@@ -280,12 +280,13 @@ def func_encode_single_time_series(i, g, variables, variables_num_freq, T, dt, s
         raise Exception(i)
     return i, df_out
 
-def process_time_series_table(df_in, args, parallel=True):
+def process_time_series_table(df_in, args):
     data_path = args.data_path
     theta_freq = args.theta_freq
     stats_functions = args.stats_functions
     N, L = args.N, args.L
     df_population = args.df_population
+    parallel = args.parallel
     
     ## TODO: asserts shape of df_in
 
@@ -312,7 +313,10 @@ def process_time_series_table(df_in, args, parallel=True):
         ))
         
     else:
-        out = dict(func_encode_single_time_series(i, g, variables, variables_num_freq) for i, g in tqdm(grouped[:N]))
+        out = dict(
+            func_encode_single_time_series(i, g, variables, variables_num_freq, args.T, args.dt, args.stats_functions) 
+            for i, g in tqdm(grouped[:N])
+        )
     
     # Handle IDs not in the table
     df_original = list(out.values())[0]

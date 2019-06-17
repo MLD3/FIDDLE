@@ -7,14 +7,14 @@ import os
 
 import argparse
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--data_path', type=str, required=True)
-parser.add_argument('--population', type=str, required=True)
-parser.add_argument('--T', type=float, required=True)
-parser.add_argument('--dt', type=float, required=True)
-parser.add_argument('--theta_1', type=float, default=0.001)
-parser.add_argument('--theta_2', type=float, default=0.001)
-parser.add_argument('--theta_freq', type=float, default=1.0)
-parser.add_argument('--stats_functions', nargs='+', default=['min', 'max', 'mean'])
+parser.add_argument('--data_path',       type=str,     required=True)
+parser.add_argument('--population',      type=str,     required=True)
+parser.add_argument('--T',               type=float,   required=True)
+parser.add_argument('--dt',              type=float,   required=True)
+parser.add_argument('--theta_1',         type=float,   default=0.001)
+parser.add_argument('--theta_2',         type=float,   default=0.001)
+parser.add_argument('--theta_freq',      type=float,   default=1.0)
+parser.add_argument('--stats_functions', nargs='+',    default=['min', 'max', 'mean'])
 args = parser.parse_args()
 
 data_path = args.data_path
@@ -29,13 +29,14 @@ theta_2 = args.theta_2
 theta_freq = args.theta_freq
 stats_functions = args.stats_functions
 
-df_population = pd.read_csv(population).rename(columns={'ICUSTAY_ID': 'ID'}).set_index('ID')
+df_population = pd.read_csv(population).set_index('ID')
 N = len(df_population)
 L = int(np.floor(T/dt))
 
 args.df_population = df_population
 args.N = N
 args.L = L
+args.parallel = parallel
 
 if os.path.isfile(data_path + 'input_data.p'):
     input_fname = data_path + 'input_data.p'
@@ -47,7 +48,7 @@ elif os.path.isfile(data_path + 'input_data.csv'):
     input_fname = data_path + 'input_data.csv'
     df_data = pd.read_csv(input_fname)
 
-## Import helper after parsing arguments to share global variables
+
 from .steps import *
 
 print('Input data file:', input_fname)
