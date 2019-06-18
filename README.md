@@ -5,13 +5,13 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
 ## Usage Notes
-FIDDLE generates feature vectors based on data within the observation period $t\in[0,T]$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $i$, $\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}$ where $s_i \in R^d$ contains time-invariant features and $x_i \in R^{L \times D}$ contains time-dependent features.
+FIDDLE generates feature vectors based on data within the observation period $`t\in[0,T]`$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $`i`$, $`\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}`$ where $`s_i \in R^d`$ contains time-invariant features and $`x_i \in R^{L \times D}`$ contains time-dependent features.
 
 Input: 
 - formatted EHR data, `.csv` or `.p`/`.pickle` files, table with 4 columns: \[`ID`, `t`, `variable_name`, `variable_value`\]
 - population file: a list of unique `ID`s you want processed
 - arguments:
-    - T: the prediction time. Time-dependent features will be generated using data in $t\in[0,T]$. 
+    - T: the prediction time. Time-dependent features will be generated using data in $`t\in[0,T]`$. 
     - dt: the temporal granularity at which to "window" time-dependent data. 
     - theta_1
     - theta_2
