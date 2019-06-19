@@ -105,10 +105,10 @@ def is_numeric(v):
 def _get_time_bins(T, dt):
     # Defines the boundaries of time bins [0, dt, 2*dt, ..., k*dt] 
     # where k*dt <= T and (k+1)*dt > T
-    return np.arange(0, dt*(T//dt+1), dt)
+    return np.arange(0, dt*(np.floor(T/dt)+1), dt)
 
 def _get_time_bins_index(T, dt):
-    return pd.Index(pd.interval_range(start=0, end=T, freq=dt, closed='left'))
+    return pd.interval_range(start=0, periods=np.floor(T/dt), freq=dt, closed='left')
 
 def pivot_event_table(df):
     df = df.copy()
