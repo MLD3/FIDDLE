@@ -108,7 +108,7 @@ def _get_time_bins(T, dt):
     return np.arange(0, dt*(np.floor(T/dt)+1), dt)
 
 def _get_time_bins_index(T, dt):
-    return pd.interval_range(start=0, periods=np.floor(T/dt), freq=dt, closed='left')
+    return pd.cut([], _get_time_bins(T, dt), right=False).categories
 
 def pivot_event_table(df):
     df = df.copy()
