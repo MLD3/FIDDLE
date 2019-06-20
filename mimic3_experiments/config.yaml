@@ -1,0 +1,10 @@
+# Location of input files
+mimic3_path: ../data/mimic3_csv/
+data_path: ../data/processed/
+
+# Customize table headers
+column_names:
+    ID: ID
+    t: t
+    var_name: variable_name
+    var_value: variable_value

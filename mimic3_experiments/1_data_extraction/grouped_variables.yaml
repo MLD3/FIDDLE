@@ -1,0 +1,36 @@
+HR:
+- 220045 # Heart Rate
+
+SysBP:
+- 224167 # Manual Blood Pressure Systolic Left
+- 227243 # Manual Blood Pressure Systolic Right
+- 220050 # Arterial Blood Pressure systolic
+- 220179 # Non Invasive Blood Pressure systolic
+- 225309 # ART BP Systolic
+
+DiaBP:
+- 224643 # Manual Blood Pressure Diastolic Left
+- 227242 # Manual Blood Pressure Diastolic Right
+- 220051 # Arterial Blood Pressure diastolic
+- 220180 # Non Invasive Blood Pressure diastolic
+- 225310 # ART BP Diastolic
+
+RR:
+- 220210 # Respiratory Rate
+- 224690 # Respiratory Rate (Total)
+
+Temperature:
+- 223761 # Temperature Fahrenheit
+- 223762 # Temperature Celsius
+
+SpO2:
+- 220277 # O2 saturation pulseoxymetry
+
+Height:
+- 226707 # Height
+- 226730 # Height (cm)
+
+Weight:
+- 224639 # Daily Weight
+- 226512 # Admission Weight (Kg)
+- 226531 # Admission Weight (lbs.)
