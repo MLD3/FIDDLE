@@ -1,8 +1,8 @@
 # FIDDLE
 
-FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</b> – is a preprocessing pipeline that transforms structured EHR data into feature vectors that can be used with ML algorithms, relying on a small number of user-defined arguments. 
+FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</b> – is a preprocessing pipeline that transforms structured EHR data into feature vectors that can be used with ML algorithms, relying on only a small number of user-defined arguments. 
 
-Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
+Requires python 3.6 or above. Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
 ## Usage Notes
 FIDDLE generates feature vectors based on data within the observation period $`t\in[0,T]`$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $`i`$, $`\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}`$ where $`s_i \in R^d`$ contains time-invariant features and $`x_i \in R^{L \times D}`$ contains time-dependent features.
@@ -41,3 +41,7 @@ python -m FIDDLE.run \
     --theta_1=0.001 --theta_2=0.001 --theta_freq=1 \
     --stats_functions 'min' 'max' 'mean'
 ```
+
+## Experiments
+
+In order to show the flexibility and utility of FIDDLE, swe conducted several experiments using data from MIMIC-III. The code to reproduce the results are located in the `mimic3_experiments` subdirectory. 
