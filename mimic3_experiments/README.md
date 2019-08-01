@@ -62,15 +62,15 @@ To establish a fair comparison, all models are tuned for hyperparameter settings
 
 To train the shallow models (LR and RF), run the following bash script. This part uses sklearn implementation of the models. 
 
-    ```bash
-    ./run_shallow_all.sh
-    ```
+```bash
+> ./run_shallow_all.sh
+```
 
 To train the deep models (CNN and LSTM), run the following bash script. This part uses pytorch implementation of the layers, and custom architectures defined in `lib/models.py`; it will use GPUs if available. 
 
-    ```bash
-    ./run_deep_all.sh
-    ```
+```bash
+> ./run_deep_all.sh
+```
 
 ### 4) Evaluation
 
