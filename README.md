@@ -11,11 +11,12 @@ Input:
 - formatted EHR data, `.csv` or `.p`/`.pickle` files, table with 4 columns: \[`ID`, `t`, `variable_name`, `variable_value`\]
 - population file: a list of unique `ID`s you want processed
 - arguments:
-    - T: the prediction time. Time-dependent features will be generated using data in $`t\in[0,T]`$. 
+    - T: The time of prediction; time-dependent features will be generated using data in $`t\in[0,T]`$. 
     - dt: the temporal granularity at which to "window" time-dependent data. 
-    - theta_1
-    - theta_2
-    - theta_freq
+    - theta_1: The threshold for Pre-filter.
+    - theta_2: The threshold for Post-filter.
+    - theta_freq: The threshold at which we deem a variable “frequent” (for which summary statistics will be calculated).
+    - stats_functions: A set of 𝐾 statistics functions (e.g., min, max, mean). Each function is used to calculate a summary value using all recordings within a single time bin. These functions are only applicable to “frequent” variables as determined by theta_freq.
 
 Output: The generated features and associated metadata are located in `{data_path}/`:
 
