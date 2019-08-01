@@ -42,7 +42,7 @@ Using these three adverse outcomes, we considered five prediction tasks:
     
     Note: a bash script is provided for generating features.
 
-The generated features and associated metadata are located in `{data_path}/features/outcome={outcome}.T={T}.dt={dt}/`:
+The generated features and associated metadata are located in `{data_path}/features/outcome={outcome},T={T},dt={dt}/`:
 
 - `s.npz`: a sparse array of shape (N, d)
 - `X.npz`: a sparse tensor of shape (N, L, D)
