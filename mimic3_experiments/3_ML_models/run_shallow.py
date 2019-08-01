@@ -32,7 +32,7 @@ task = args.outcome
 model_type = args.model_type
 model_name = model_type
 
-T = int(args.T)
+T = float(args.T)
 dt = float(args.dt)
 
 if model_type == 'CNN':
@@ -47,11 +47,11 @@ else:
     assert False
 
 
-print('EXPERIMENT:', 'model={}.outcome={}.T={}.dt={}'.format(model_name, task, T, dt))
+print('EXPERIMENT:', 'model={},outcome={},T={},dt={}'.format(model_name, task, T, dt))
 
 # Create checkpoint directories
 import pathlib
-pathlib.Path("./checkpoint/model={}.outcome={}.T={}.dt={}/".format(model_name, task, T, dt)).mkdir(parents=True, exist_ok=True)
+pathlib.Path("./checkpoint/model={},outcome={},T={},dt={}/".format(model_name, task, T, dt)).mkdir(parents=True, exist_ok=True)
 
 ######
 # Data
@@ -137,7 +137,7 @@ print('best_params_', clf.best_params_)
 print('best_score_ ', clf.best_score_)
 try:
     np.savetxt(
-        'output/outcome={}.T={}.dt={}/{}.coef.txt'.format(task, T, dt, model_name), 
+        'output/outcome={},T={},dt={}/{},coef.txt'.format(task, T, dt, model_name), 
         clf.best_estimator_.coef_,
         delimiter=',',
     )

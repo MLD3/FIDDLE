@@ -1,4 +1,4 @@
-data_path: /data4/tangsp/mimic3_features/
+data_path: ../data/processed/
 
 model_names: {
     'CNN': 'CNN_V3',

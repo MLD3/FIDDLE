@@ -63,7 +63,7 @@ args = parser.parse_args()
 task = args.outcome
 model_type = args.model_type
 
-T = int(args.T)
+T = float(args.T)
 dt = float(args.dt)
 L_in = int(np.floor(T / dt))
 in_channels = dimensions[task][float(T)]

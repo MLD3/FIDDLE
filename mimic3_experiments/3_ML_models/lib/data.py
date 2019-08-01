@@ -11,10 +11,10 @@ from sklearn.impute import SimpleImputer
 import yaml
 
 with open('config.yaml') as f:
-    config = yaml.load(f)
+    config = yaml.safe_load(f)
     data_path = config['data_path']
 
-def get_test(task, fuse=False, duration=4, timestep=0.5, normalize=True, batch_size=64):
+def get_test(task, duration, timestep, fuse=False, batch_size=64):
     """
     Returns:
         pytorch DataLoader for test
@@ -37,7 +37,7 @@ def get_test(task, fuse=False, duration=4, timestep=0.5, normalize=True, batch_s
     return te_loader
 
 
-def get_train_val_test(task, fuse=False, duration=4, timestep=0.5, normalize=True, batch_size=64):
+def get_train_val_test(task, fuse=False, duration=4, timestep=0.5, batch_size=64):
     """
     Returns:
         pytorch DataLoader for train, val, test
@@ -70,11 +70,11 @@ def get_train_val_test(task, fuse=False, duration=4, timestep=0.5, normalize=Tru
 
 def get_benchmark_splits(fuse=False, batch_size=64):
     task = 'mortality'
-    duration = 48
+    duration = 48.0
     timestep = 1.0
     df_label = pd.read_csv(data_path + 'population/pop.mortality_benchmark.csv').rename(columns={'{}_LABEL'.format(task): 'LABEL'})
-    X = sparse.load_npz(data_path +'features/benchmark.outcome={}.T={}.dt={}/X.npz'.format(task, duration, timestep)).todense()
-    s = sparse.load_npz(data_path +'features/benchmark.outcome={}.T={}.dt={}/s.npz'.format(task, duration, timestep)).todense()
+    X = sparse.load_npz(data_path +'features/benchmark,outcome={},T={},dt={}/X.npz'.format(task, duration, timestep)).todense()
+    s = sparse.load_npz(data_path +'features/benchmark,outcome={},T={},dt={}/s.npz'.format(task, duration, timestep)).todense()
     
     tr_idx = df_label[df_label['partition'] == 'train'].index.values
     va_idx = df_label[df_label['partition'] == 'val'  ].index.values
@@ -120,8 +120,8 @@ def get_benchmark_test(fuse=False, batch_size=64):
     df_label_all = pd.read_csv(data_path + 'population/{}_{}h.csv'.format(task, duration)).rename(columns={'{}_LABEL'.format(task): 'LABEL'})
     df_label = pd.read_csv(data_path + 'population/pop.mortality_benchmark.csv').rename(columns={'{}_LABEL'.format(task): 'LABEL'})
     
-    X = sparse.load_npz(data_path +'features/outcome={}.T={}.dt={}/X.npz'.format(task, duration, timestep)).todense()
-    s = sparse.load_npz(data_path +'features/outcome={}.T={}.dt={}/s.npz'.format(task, duration, timestep)).todense()
+    X = sparse.load_npz(data_path +'features/outcome={},T={},dt={}/X.npz'.format(task, duration, timestep)).todense()
+    s = sparse.load_npz(data_path +'features/outcome={},T={},dt={}/s.npz'.format(task, duration, timestep)).todense()
     
     te_idx = [df_label_all[df_label_all['ICUSTAY_ID'] == ID].index.values[0] for ID in df_label[df_label['partition'] == 'test' ]['ID']]
     
@@ -168,8 +168,8 @@ class _Mimic3Reader(object):
                                 .sort_values(by=['SUBJECT_ID', 'LABEL']) \
                                 .drop_duplicates('SUBJECT_ID', keep='last').reset_index(drop=True)
         
-        self.X = sparse.load_npz(data_path +'features/outcome={}.T={}.dt={}/X.npz'.format(task, duration, timestep)).todense()
-        self.s = sparse.load_npz(data_path +'features/outcome={}.T={}.dt={}/s.npz'.format(task, duration, timestep)).todense()
+        self.X = sparse.load_npz(data_path +'features/outcome={},T={},dt={}/X.npz'.format(task, duration, timestep)).todense()
+        self.s = sparse.load_npz(data_path +'features/outcome={},T={},dt={}/s.npz'.format(task, duration, timestep)).todense()
         
         print('Finish reading data \t {:.2f} s'.format(time.time() - start_time))
     
@@ -201,8 +201,8 @@ class _Mimic3Reader(object):
         te_idx = self.df_subjects[self.df_subjects['partition'] == 'test' ].index.values
         try:
             import pathlib
-            pathlib.Path('./output/outcome={}.T={}.dt={}/'.format(self.task, self.duration, self.timestep)).mkdir(parents=True, exist_ok=True)
-            np.savez(open('./output/outcome={}.T={}.dt={}/idx.npz'.format(self.task, self.duration, self.timestep), 'wb'), tr_idx=tr_idx, va_idx=va_idx, te_idx=te_idx)
+            pathlib.Path('./output/outcome={},T={},dt={}/'.format(self.task, self.duration, self.timestep)).mkdir(parents=True, exist_ok=True)
+            np.savez(open('./output/outcome={},T={},dt={}/idx.npz'.format(self.task, self.duration, self.timestep), 'wb'), tr_idx=tr_idx, va_idx=va_idx, te_idx=te_idx)
         except:
             print('indices not saved')
             raise
@@ -248,8 +248,8 @@ class _Mimic3Reader(object):
         
         try:
             import pathlib
-            pathlib.Path('./output/outcome={}.T={}.dt={}/'.format(self.task, self.duration, self.timestep)).mkdir(parents=True, exist_ok=True)
-            np.savez(open('./output/outcome={}.T={}.dt={}/idx.npz'.format(self.task, self.duration, self.timestep), 'wb'), tr_idx=tr_idx, va_idx=va_idx, te_idx=te_idx)
+            pathlib.Path('./output/outcome={},T={},dt={}/'.format(self.task, self.duration, self.timestep)).mkdir(parents=True, exist_ok=True)
+            np.savez(open('./output/outcome={},T={},dt={}/idx.npz'.format(self.task, self.duration, self.timestep), 'wb'), tr_idx=tr_idx, va_idx=va_idx, te_idx=te_idx)
         except:
             print('indices not saved')
             raise
