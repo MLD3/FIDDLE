@@ -161,7 +161,7 @@ class _Mimic3Reader(object):
         self.timestep = timestep
         
         start_time = time.time()
-        self.df_label = pd.read_csv(data_path + 'population/{}_{}h.csv'.format(task, duration)).rename(columns={'{}_LABEL'.format(task): 'LABEL'})
+        self.df_label = pd.read_csv(data_path + 'population/{}_{}h.csv'.format(task, duration)).rename(columns={'ID': 'ICUSTAY_ID', '{}_LABEL'.format(task): 'LABEL'})
         self.df_subjects = pd.read_csv(data_path + 'prep/icustays_MV.csv').merge(self.df_label, on='ICUSTAY_ID', how='right')
         self.df_subject_label = self.df_subjects[['SUBJECT_ID', 'ICUSTAY_ID']] \
                                 .merge(self.df_label, on='ICUSTAY_ID', how='right') \

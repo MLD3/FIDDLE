@@ -6,7 +6,7 @@ mkdir -p output
 python run_shallow.py --outcome=mortality --T=48.0 --dt=1.0 --model_type=LR \
     >  >(tee 'log/outcome=mortality,T=48.0,dt=1.0,LR.out') \
     2> >(tee 'log/outcome=mortality,T=48.0,dt=1.0,LR.err' >&2)
-python run_shallow.py --outcome=mortality --T=48.0. --dt=1.0 --model_type=RF \
+python run_shallow.py --outcome=mortality --T=48.0 --dt=1.0 --model_type=RF \
     >  >(tee 'log/outcome=mortality,T=48.0,dt=1.0,RF.out') \
     2> >(tee 'log/outcome=mortality,T=48.0,dt=1.0,RF.err' >&2)
 
