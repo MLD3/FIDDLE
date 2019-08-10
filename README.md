@@ -43,6 +43,19 @@ python -m FIDDLE.run \
     --stats_functions 'min' 'max' 'mean'
 ```
 
+## Guidelines on argument settings
+The user-defined arguments of FIDDLE include: T, dt, theta_1, theta_2, theta_freq, and K statistics functions. The settings of these arguments could affect the features and how they can be used. We provided reasonable default values in the implementation, and here list some practical considerations: (i) prediction time and frequency, (ii) temporal density of data, and (iii) class balance.
+
+(i) The prediction time and frequency determine the appropriate settings for T and dt. The risk stratification tasks we considered all involve a single prediction at the end of a fixed prediction window. It is thus most reasonable to set T to be the length of prediction window. Another possible formulation is to make multiple predictions where each prediction depends on only data from the past (not the future), using models like LSTM or fully convolutional networks. In that case, for example, if a prediction needs to be made every 4 hours over a 48-hour period, then T should be 48 hours, whereas dt should be at most 4 hours. 
+
+(ii) The temporal density of data, that is, how often the variables are usually measured, also affects the setting of dt. This can be achieved by plotting a histogram of recording frequency. In our case, we observed that the maximum hourly frequency is ~1.2 times, which suggests dt should not be smaller than 1 hour. While most variables are recorded on average <0.1 time per hour (most of the time not recorded), the 6 vital signs are recorded slightly >1 time per hour. Thus, given that in the ICU, vital signs are usually collected once per hour, we set dt=1. This also implies the setting of θ_freq to be 1. Besides determining the value for dt from context (how granular we want to encode the data), we can also sweep the range (if there are sufficient computational resources and time) given the prediction frequency and the temporal density of data. 
+
+(iii) We recommend setting θ_1=θ_2=θ and be conservative to avoid removing information that could be potentially useful. For binary classification, the rule-of-the-thumb we suggest is to set θ to be about 1/100 of the minority class. For example, our cohorts consist of ~10% positive cases, so setting θ=0.001 is appropriate, whereas for a cohort with only 1% positive cases, then θ=0.0001 is more appropriate. Given sufficient computational resources and time, the value of θ can also be swept and optimized. 
+
+Finally, for the summary statistics functions, we included by default the most basic statistics functions are minimum, maximum, and mean. If on average, we expect more than one value per time bin, then we can also include higher order statistics such as standard deviation and linear slope.
+
+
+
 ## Experiments
 
 In order to show the flexibility and utility of FIDDLE, swe conducted several experiments using data from MIMIC-III. The code to reproduce the results are located in the `mimic3_experiments` subdirectory. 
