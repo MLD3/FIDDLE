@@ -6,7 +6,7 @@ Requires python 3.6 or above. Required packages and versions are listed in `requ
 
 ## Publications
 
-- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. [Democratizing EHR Analyses - a Comprehensive Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf). MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
+- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. <b>[Democratizing EHR Analyses - a Comprehensive, Generalizable Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf)</b>. MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
 - Our journal paper is currently under review by JAMIA and will be made available soon
 
 ## Usage Notes
