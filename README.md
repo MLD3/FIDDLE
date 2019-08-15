@@ -4,9 +4,11 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Requires python 3.6 or above. Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
-## Publications
+## Publications & Resources
 
-- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. <b>[Democratizing EHR Analyses - a Comprehensive, Generalizable Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf)</b>. MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
+- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. <b>[Democratizing EHR Analyses - a Comprehensive, Generalizable Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf)</b>. Presented at MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
+- [Poster](https://umich.box.com/s/c6rqkpd2t7gdagbjn0l5cuhaobq5zfoo)
+- [Spotlight presentation](https://www.ustream.tv/recorded/123483299) @59:35
 - Our journal paper is currently under review by JAMIA and will be made available soon
 
 ## Usage Notes
