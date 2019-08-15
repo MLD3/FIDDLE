@@ -4,6 +4,11 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Requires python 3.6 or above. Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
+## Publications
+
+- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. [Democratizing EHR Analyses - a Comprehensive Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf). MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
+- Our journal paper is currently under review by JAMIA and will be made available soon
+
 ## Usage Notes
 FIDDLE generates feature vectors based on data within the observation period $`t\in[0,T]`$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $`i`$, $`\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}`$ where $`s_i \in R^d`$ contains time-invariant features and $`x_i \in R^{L \times D}`$ contains time-dependent features.
 
