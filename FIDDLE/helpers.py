@@ -1,6 +1,7 @@
 from .config import *
 import pandas as pd
 import numpy as np
+import scipy
 import sparse
 from collections import defaultdict
 
