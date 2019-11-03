@@ -42,7 +42,7 @@ def calculate_variable_counts(df_data, df_population):
     """
     df = df_data.copy()
     df['count'] = 1
-    df_count = df.groupby([ID_col, var_col]).count()[['count']].unstack(1, fill_value=0)
+    df_count = df[[ID_col, var_col, 'count']].groupby([ID_col, var_col]).count().unstack(1, fill_value=0)
     df_count.columns = df_count.columns.droplevel()
     df_count = df_count.reindex(df_population.index, fill_value=0)
     ## Slower version
@@ -240,22 +240,21 @@ class FrequencyThreshold_temporal(
         # Collapse time dimension, generating NxD matrix
         X_notalways0 = X.any(axis=1)
         X_notalways1 = (1-X).any(axis=1)
-        if hasattr(X, "toarray"):
-            X_notalways0 = X_notalways0.toarray()
-            X_notalways1 = X_notalways1.toarray()
-        if hasattr(X, "todense"):
-            X_notalways0 = X_notalways0.todense()
-            X_notalways1 = X_notalways1.todense()
         
         self.freqs_notalways0 = np.mean(X_notalways0, axis=0)
         self.freqs_notalways1 = np.mean(X_notalways1, axis=0)
         return self
 
     def _get_support_mask(self):
-        return np.logical_and(
+        mask = np.logical_and(
             self.freqs_notalways0 > self.threshold,
             self.freqs_notalways1 > self.threshold,
         )
+        if hasattr(mask, "toarray"):
+            mask = mask.toarray()
+        if hasattr(mask, "todense"):
+            mask = mask.todense()
+        return mask
 
 # Keep only first feature in a pairwise perfectly correlated feature group
 class CorrelationSelector(
@@ -266,14 +265,15 @@ class CorrelationSelector(
         super().__init__()
     
     def fit(self, X, y=None):
-        if hasattr(X, "toarray"):   # sparse matrix
-            X = X.toarray()
-        if hasattr(X, "todense"):   # sparse matrix
-            X = X.todense()
+        if hasattr(X, "to_scipy_sparse"):   # sparse matrix
+            X = X.to_scipy_sparse()
         
         # Calculate correlation matrix
         # Keep only lower triangular matrix
-        self.corr_matrix = np.corrcoef(X.T)
+        if scipy.sparse.issparse(X):
+            self.corr_matrix = sparse_corrcoef(X.T)
+        else:
+            self.corr_matrix = np.corrcoef(X.T)
         np.fill_diagonal(self.corr_matrix, 0)
         self.corr_matrix *= np.tri(*self.corr_matrix.shape)
         
@@ -309,3 +309,22 @@ class CorrelationSelector(
                     break
         return dict(alias_map)
 
+# https://stackoverflow.com/questions/19231268/correlation-coefficients-for-sparse-matrix-in-python
+def sparse_corrcoef(A, B=None):
+    if B is not None:
+        A = sparse.vstack((A, B), format='csr')
+    
+    A = A.astype(np.float64)
+    n = A.shape[1]
+
+    # Compute the covariance matrix
+    rowsum = A.sum(1)
+    centering = rowsum.dot(rowsum.T.conjugate()) / n
+    C = (A.dot(A.T.conjugate()) - centering) / (n - 1)
+
+    # The correlation coefficients are given by
+    # C_{i,j} / sqrt(C_{i} * C_{j})
+    d = np.diag(C)
+    coeffs = C / np.sqrt(np.outer(d, d))
+
+    return np.array(coeffs)
