@@ -77,11 +77,22 @@ def smart_qcut(x, q):
     x = x.copy()
     x = x.apply(make_float)
     m = x.apply(np.isreal)
-    if x.loc[m].dropna().nunique() > 1:
+    if x.loc[m].dropna().nunique() > 1: # when more than one numeric values
         x.loc[m] = pd.qcut(x.loc[m].to_numpy(), q=q, duplicates='drop')
 #         bins = np.percentile(x.loc[m].to_numpy(), [0, 20, 40, 60, 80, 100])
 #         x.loc[m] = pd.cut(x, bins)
     return x
+
+def smart_dummify_impute(x):
+    x = x.copy()
+    x = x.apply(make_float)
+    m = x.apply(np.isreal)
+    if x.loc[m].dropna().nunique() == 0: # all string values
+        return pd.get_dummies(x, prefix=x.name, prefix_sep=':')
+    else:
+        x = pd.DataFrame(x)
+        x = x.fillna(x.mean()) # simple mean imputation
+        return x
 
 def make_float(v):
     try:

@@ -120,7 +120,7 @@ def transform_time_invariant(df_data_time_invariant, args):
     print('Time elapsed: %f seconds' % (time.time() - start_time))
 
     ## Discretize
-    s_all, s_all_feature_names = map_time_invariant_features(df_time_invariant)
+    s_all, s_all_feature_names = map_time_invariant_features(df_time_invariant, args.binarize)
     sparse.save_npz(dir_path + 's_all.npz', s_all)
     np.savetxt(dir_path + 's_all.feature_names.txt', s_all_feature_names, '"%s"')
     print('Time elapsed: %f seconds' % (time.time() - start_time))
@@ -203,16 +203,32 @@ def map_time_invariant_features(df, bin_numeric=True):
     # Categorical -> binary features
     # Numeric -> binary/float-valued features
     if bin_numeric:
-        df_mixed = df.apply(smart_qcut, q=5)
-        features_mixed = pd.get_dummies(df_mixed, columns=df_mixed.columns, prefix_sep=':')
+#         df_mixed = df.apply(smart_qcut, q=5)
+#         features_mixed = pd.get_dummies(df_mixed, columns=df_mixed.columns, prefix_sep=':')
+#         time_invariant_features = features_mixed
+#         assert time_invariant_features.astype(int).dtypes.nunique() == 1
+        
+        out = [smart_qcut_dummify(df[col], q=5) for col in df.columns]
+        time_invariant_features = pd.concat(out, axis=1)
+        feature_names_all = time_invariant_features.columns.values
+        sdf = time_invariant_features.astype(pd.SparseDtype(int, fill_value=0))
+        s_ = sparse.COO(sdf.sparse.to_coo())
     else:
-        raise NotImplementedError
-    
-    time_invariant_features = features_mixed
-    assert time_invariant_features.astype(int).dtypes.nunique() == 1
-    sdf = time_invariant_features.astype(int).to_sparse(fill_value=0)
-    feature_names_all = time_invariant_features.columns.values
-    s_ = sparse.COO(sdf.to_coo())
+        # Split a mixed column into numeric and string columns
+        for col in df.columns:
+            col_data = df[col]
+            col_is_numeric = [is_numeric(v) for v in col_data if not pd.isnull(v)]
+            if not all(col_is_numeric) and any(col_is_numeric): # have mixed type values
+                numeric_mask = col_data.apply(is_numeric)
+                df[col+'_str'] = df[col].copy()
+                df.loc[~numeric_mask, col] = np.nan
+                df.loc[numeric_mask, col+'_str'] = np.nan
+        
+        out = [smart_dummify_impute(df[col]) for col in df.columns]
+        time_invariant_features = pd.concat(out, axis=1)
+        feature_names_all = time_invariant_features.columns.values
+        sdf = time_invariant_features.astype(pd.SparseDtype(float, fill_value=0))
+        s_ = sparse.COO(sdf.sparse.to_coo())
     
     print()
     print('Output')
@@ -373,7 +389,7 @@ def process_time_series_table(df_in, args):
     df_time_series = pd.DataFrame(data=time_series, index=index, columns=columns)
     
     # Print metadata
-    ## Freq: Count misisng entries using mask
+    ## Freq: Count missing entries using mask
     ts_mask = df_time_series[[col for col in df_time_series if col.endswith('_mask')]]
     ts_mask.columns = [col.replace('_mask', '') for col in ts_mask.columns]
     print('(freq) number of missing entries :\t', 
@@ -410,50 +426,57 @@ def process_time_series_table(df_in, args):
 def map_time_series_features(df_time_series, dtypes, args):
     N, L = args.N, args.L
     
-    print()
-    print('Discretizing features...')
-    
     df_time_series = df_time_series.dropna(axis='columns', how='all').sort_index()
-    # time_series = df_time_series[df_time_series.index.get_level_values(0).isin(population.index)]
 
+    print('Discretizing features...')
     ts_mask = select_dtype(df_time_series, 'mask', dtypes)
     ts_mixed = select_dtype(df_time_series, '~mask', dtypes)
     assert len(ts_mixed.columns) + len(ts_mask.columns) == len(df_time_series.columns)
-
     ts_feature_mask = ts_mask.astype(int)
-
     ts_mixed_cols = [ts_mixed[col] for col in ts_mixed.columns]
-    print('Processing', len(ts_mixed_cols), 'non-boolean variable columns...')
+    
+    print()
+    if args.binarize:
+        dtype = int
+        print('Processing', len(ts_mixed_cols), 'non-boolean variable columns...')
 
-    print('    Binning numeric variables by quintile...')
-    print('    Converting variables to binary features')
-    if parallel:
-        out = Parallel(n_jobs=n_jobs, verbose=10)( # Need to share global variables
-            delayed(smart_qcut_dummify)(col_data, q=5) for col_data in ts_mixed_cols
-        )
+        print('    Binning numeric variables by quintile...')
+        print('    Converting variables to binary features')
+        if parallel:
+            out = Parallel(n_jobs=n_jobs, verbose=10)( # Need to share global variables
+                delayed(smart_qcut_dummify)(col_data, q=5) for col_data in ts_mixed_cols
+            )
+        else:
+            out = [smart_qcut_dummify(col_data, q=5) for col_data in tqdm(ts_mixed_cols)]
     else:
-        out = [smart_qcut_dummify(col_data, q=5) for col_data in tqdm(ts_mixed_cols)]
-
-    if False:
-        # ts_mixed_cut = ts_mixed.progress_apply(smart_qcut, q=5)
-        # ts_feature_mixed = pd.get_dummies(ts_mixed_cut, prefix_sep='_', columns=ts_mixed_cut.columns)
-
-        ts_feature_mixed = pd.concat(out, axis=1)
-
-        time_series_features = ts_feature_mask.join([ts_feature_mixed]).astype(int)
-        assert time_series_features.astype(int).dtypes.nunique() == 1
-        Xdf = time_series_features.to_sparse(fill_value=0)
-
-        X_all_feature_names = time_series_features.columns.values
-        X_all = sparse.COO(Xdf.to_coo())
-
-        _, D_all = X_all.shape
-    else:
-        out = [ts_feature_mask, *out]
-        D_all = sum(len(df_i.columns) for df_i in out)
-        X_all_feature_names = np.asarray(sum([list(df_i.columns) for df_i in out], []))
-        X_dense = np.concatenate([df_i.values for df_i in out], axis=1).astype(int)
-        X_all = sparse.COO(X_dense)
+        dtype = float
+        df = ts_mixed.copy()
+        
+        # Split a mixed column into numeric and string columns
+        for col in df.columns:
+            col_data = df[col]
+            col_is_numeric = [is_numeric(v) for v in col_data if not pd.isnull(v)]
+            if not all(col_is_numeric) and any(col_is_numeric): # have mixed type values
+                numeric_mask = col_data.apply(is_numeric)
+                df[col+'_str'] = df[col].copy()
+                df.loc[~numeric_mask, col] = np.nan
+                df.loc[numeric_mask, col+'_str'] = np.nan
+        
+        ts_mixed_cols = [df[col] for col in df.columns]
+        
+        print('Discretizing categorical features...')
+        if parallel:
+            out = Parallel(n_jobs=n_jobs, verbose=10)( # Need to share global variables?
+                delayed(smart_dummify_impute)(col_data) for col_data in ts_mixed_cols
+            )
+        else:
+            out = [smart_dummify_impute(col_data) for col_data in tqdm(ts_mixed_cols)]
+    
+    out = [ts_feature_mask, *out]
+    D_all = sum(len(df_i.columns) for df_i in out)
+    X_all_feature_names = np.asarray(sum([list(df_i.columns) for df_i in out], []))
+    X_dense = np.concatenate([df_i.values for df_i in out], axis=1).astype(dtype)
+    X_all = sparse.COO(X_dense)
     
     print('Finished discretizing features')
     assert X_all.shape[0] == N * L
@@ -468,7 +491,7 @@ def post_filter_time_series(X_all, feature_names_all, threshold, args):
     N, L = args.N, args.L
     assert X_all.shape[0] == N
     assert X_all.shape[1] == L
-    assert X_all.dtype == int
+#     assert X_all.dtype == int
     start_time = time.time()
     
     X0 = X_all

@@ -5,6 +5,16 @@ import numpy as np
 import time
 import os
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 import argparse
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--data_path',       type=str,     required=True)
@@ -15,6 +25,7 @@ parser.add_argument('--theta_1',         type=float,   default=0.001)
 parser.add_argument('--theta_2',         type=float,   default=0.001)
 parser.add_argument('--theta_freq',      type=float,   default=1.0)
 parser.add_argument('--stats_functions', nargs='+',    default=['min', 'max', 'mean'])
+parser.add_argument('--binarize',        type=str2bool, default=True, nargs='?', const=True)
 args = parser.parse_args()
 
 data_path = args.data_path
@@ -28,6 +39,7 @@ theta_1 = args.theta_1
 theta_2 = args.theta_2
 theta_freq = args.theta_freq
 stats_functions = args.stats_functions
+binarize = args.binarize
 
 df_population = pd.read_csv(population).set_index('ID')
 N = len(df_population)
@@ -60,6 +72,7 @@ print('    {:<6} = {}'.format('\u03B8\u2081', theta_1))
 print('    {:<6} = {}'.format('\u03B8\u2082', theta_2))
 print('    {:<6} = {}'.format('\u03B8_freq', theta_freq))
 print('    {:<6} = {} {}'.format('k', len(stats_functions), stats_functions))
+print('{} = {}'.format('binarize', {False: 'no', True: 'yes'}[binarize]))
 print()
 print('N = {}'.format(N))
 print('L = {}'.format(L))
