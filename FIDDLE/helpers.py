@@ -235,9 +235,9 @@ def check_imputed_output(df_v):
 # Post-filter: feature selection classes
 ######
 try:
-    from sklearn.feature_selection.base import SelectorMixin
-except:
     from sklearn.feature_selection._base import SelectorMixin
+except:
+    from sklearn.feature_selection.base import SelectorMixin
 
 class FrequencyThreshold_temporal(
     sklearn.base.BaseEstimator,
