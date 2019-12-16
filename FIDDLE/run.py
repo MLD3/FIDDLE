@@ -17,8 +17,6 @@ def str2bool(v):
 
 import argparse
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--data_path',       type=str,     required=True)
-parser.add_argument('--population',      type=str,     required=True)
 parser.add_argument('--T',               type=float,   required=True)
 parser.add_argument('--dt',              type=float,   required=True)
 parser.add_argument('--theta_1',         type=float,   default=0.001)
@@ -26,6 +24,17 @@ parser.add_argument('--theta_2',         type=float,   default=0.001)
 parser.add_argument('--theta_freq',      type=float,   default=1.0)
 parser.add_argument('--stats_functions', nargs='+',    default=['min', 'max', 'mean'])
 parser.add_argument('--binarize',        type=str2bool, default=True, nargs='?', const=True)
+
+parser.add_argument('--data_path',       type=str,     required=True)
+parser.add_argument('--input_fname',     type=str,     required=False)
+parser.add_argument('--population',      type=str,     required=True)
+parser.add_argument('--N',               type=int,     required=False)
+parser.add_argument('--Ds',              nargs='+',    type=int)
+
+parser.add_argument('--no_prefilter',    dest='prefilter',  action='store_false')
+parser.add_argument('--no_postfilter',   dest='postfilter', action='store_false')
+parser.set_defaults(prefilter=True, postfilter=True)
+
 args = parser.parse_args()
 
 data_path = args.data_path
@@ -42,7 +51,8 @@ stats_functions = args.stats_functions
 binarize = args.binarize
 
 df_population = pd.read_csv(population).set_index('ID')
-N = len(df_population)
+N = args.N or len(df_population)
+df_population = df_population.iloc[:args.N]
 L = int(np.floor(T/dt))
 
 args.df_population = df_population
@@ -50,7 +60,15 @@ args.N = N
 args.L = L
 args.parallel = parallel
 
-if os.path.isfile(data_path + 'input_data.p'):
+if args.input_fname and os.path.isfile(args.input_fname):
+    input_fname = args.input_fname
+    if input_fname.endswith('.p' or '.pickle'):
+        df_data = pd.read_pickle(input_fname)
+    elif input_fname.endswith('.csv'):
+        df_data = pd.read_csv(input_fname)
+    else:
+        assert False
+elif os.path.isfile(data_path + 'input_data.p'):
     input_fname = data_path + 'input_data.p'
     df_data = pd.read_pickle(input_fname)
 elif os.path.isfile(data_path + 'input_data.pickle'):
@@ -78,8 +96,10 @@ print('N = {}'.format(N))
 print('L = {}'.format(L))
 print('', flush=True)
 
-print_header('1) Pre-filter')
-df_data = pre_filter(df_data, theta_1, df_population, args)
+if args.prefilter:
+    print_header('1) Pre-filter')
+    df_data = pre_filter(df_data, theta_1, df_population, args)
+    df_data.to_csv(data_path + 'pre-filtered.csv', index=False)
 
 print_header('2) Transform; 3) Post-filter')
 df_data, df_types = detect_variable_data_type(df_data, value_type_override, args)
