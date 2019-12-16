@@ -234,10 +234,14 @@ def check_imputed_output(df_v):
 ######
 # Post-filter: feature selection classes
 ######
+try:
+    from sklearn.feature_selection.base import SelectorMixin
+except:
+    from sklearn.feature_selection._base import SelectorMixin
 
 class FrequencyThreshold_temporal(
     sklearn.base.BaseEstimator,
-    sklearn.feature_selection.base.SelectorMixin
+    SelectorMixin
 ):
     def __init__(self, threshold=0., L=None):
         assert L is not None
@@ -271,7 +275,7 @@ class FrequencyThreshold_temporal(
 # Keep only first feature in a pairwise perfectly correlated feature group
 class CorrelationSelector(
     sklearn.base.BaseEstimator,
-    sklearn.feature_selection.base.SelectorMixin,
+    SelectorMixin,
 ):
     def __init__(self):
         super().__init__()
