@@ -1,0 +1,25 @@
+data_path: ../data/
+
+model_names: {
+    'CNN': 'CNN_V3',
+    'RNN': 'RNN_V2',
+    'LR': 'LR',
+    'RF': 'RF',
+}
+
+train:
+    budget: 50
+    repeat: 1
+    epochs: 15
+
+feature_dimension:
+    ARF:
+        4.0 : 4143
+        12.0: 4912
+
+    Shock:
+        4.0 : 4620
+        12.0: 5597
+
+    mortality:
+        48.0: 7508
