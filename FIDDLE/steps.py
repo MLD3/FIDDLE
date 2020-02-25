@@ -6,6 +6,7 @@ FIDDLE Preprocessing steps
 """
 from .helpers import *
 import time
+import json
 
 def pre_filter(df, threshold, df_population, args):
     T = int(args.T)
@@ -106,26 +107,27 @@ def split_by_timestamp_type(df):
     print('# rows    (time-dependent):', len(df_time_series))
     return df_time_invariant, df_time_series
 
-def transform_time_invariant(df_data_time_invariant, args):
+def process_time_invariant(df_data_time_invariant, args):
     data_path = args.data_path
     df_population = args.df_population
     theta_2 = args.theta_2
     
-    print_header('2.1) Transform time-invariant data', char='-')
+    print_header('2-A) Transform time-invariant data', char='-')
     dir_path = data_path + '/'
     start_time = time.time()
 
     ## Create Nxd^ table
-    df_time_invariant = process_time_invariant_table(df_data_time_invariant, df_population)
+    df_time_invariant = transform_time_invariant_table(df_data_time_invariant, df_population)
     print('Time elapsed: %f seconds' % (time.time() - start_time))
 
     ## Discretize
     s_all, s_all_feature_names = map_time_invariant_features(df_time_invariant, args.binarize)
     sparse.save_npz(dir_path + 's_all.npz', s_all)
-    np.savetxt(dir_path + 's_all.feature_names.txt', s_all_feature_names, '"%s"')
+    with open(dir_path + 's_all.feature_names.json', 'w') as f:
+        json.dump(list(s_all_feature_names), f, sort_keys=True)
     print('Time elapsed: %f seconds' % (time.time() - start_time))
 
-    print_header('3.1) Post-filter time-invariant data', char='-')
+    print_header('3-A) Post-filter time-invariant data', char='-')
     
     ## Filter
     s, s_feature_names, s_feature_aliases = post_filter(s_all, s_all_feature_names, theta_2)
@@ -136,35 +138,38 @@ def transform_time_invariant(df_data_time_invariant, args):
     print('Output')
     print('s: shape={}, density={:.3f}'.format(s.shape, s.density))
     sparse.save_npz(dir_path + 's.npz', s)
-    np.savetxt(dir_path + 's.feature_names.txt', s_feature_names, '"%s"')
-    with open(dir_path + 's.feature_aliases.yml', 'w') as f:
-        yaml.dump(s_feature_aliases, f, default_flow_style=False)
+    
+    with open(dir_path + 's.feature_names.json', 'w') as f:
+        json.dump(list(s_feature_names), f, sort_keys=True)
+    with open(dir_path + 's.feature_aliases.json', 'w') as f:
+        json.dump(s_feature_aliases, f, sort_keys=True)
     
     print('Total time: %f seconds' % (time.time() - start_time))
     print('', flush=True)
     return s, s_feature_names, s_feature_aliases
 
 
-def transform_time_dependent(df_data_time_series, args):
+def process_time_dependent(df_data_time_series, args):
     data_path = args.data_path
     theta_2 = args.theta_2
     
-    print_header('2.2) Transform time-dependent data', char='-')
+    print_header('2-B) Transform time-dependent data', char='-')
     dir_path = data_path + '/'
     start_time = time.time()
 
     ## Create NxLxD^ table
-    df_time_series, dtypes_time_series = process_time_series_table(df_data_time_series, args)
+    df_time_series, dtypes_time_series = transform_time_series_table(df_data_time_series, args)
     print('Time elapsed: %f seconds' % (time.time() - start_time))
     
     ## Map variables to features
     X_all, X_all_feature_names = map_time_series_features(df_time_series, dtypes_time_series, args)
     sparse.save_npz(dir_path + 'X_all.npz', X_all)
-    np.savetxt(dir_path + 'X_all.feature_names.txt', X_all_feature_names, '"%s"')
+    with open(dir_path + 'X_all.feature_names.json', 'w') as f:
+        json.dump(list(X_all_feature_names), f, sort_keys=True)
     print('Time elapsed: %f seconds' % (time.time() - start_time))
     
     ## Filter features
-    print_header('3.2) Post-filter time-dependent data', char='-')
+    print_header('3-B) Post-filter time-dependent data', char='-')
     print(X_all.shape, X_all.density)
     X, X_feature_names, X_feature_aliases = post_filter_time_series(X_all, X_all_feature_names, theta_2, args)
     print(X.shape, X.density)
@@ -175,9 +180,10 @@ def transform_time_dependent(df_data_time_series, args):
     print('Output')
     print('X: shape={}, density={:.3f}'.format(X.shape, X.density))
     sparse.save_npz(dir_path + 'X.npz', X)
-    np.savetxt(dir_path + 'X.feature_names.txt', X_feature_names, '"%s"')
-    with open(dir_path + 'X.feature_aliases.yml', 'w') as f:
-        yaml.dump(X_feature_aliases, f, default_flow_style=False)
+    with open(dir_path + 's.feature_names.json', 'w') as f:
+        json.dump(list(X_feature_names), f, sort_keys=True)
+    with open(dir_path + 'X.feature_aliases.json', 'w') as f:
+        json.dump(X_feature_aliases, f, sort_keys=True)
     
     print('Total time: %f seconds' % (time.time() - start_time))
     print('', flush=True)
@@ -187,7 +193,7 @@ def transform_time_dependent(df_data_time_series, args):
 ######
 # Time-invariant routines
 ######
-def process_time_invariant_table(df_in, df_population):
+def transform_time_invariant_table(df_in, df_population):
     df_in = df_in.copy()
     
     # Recorded Value (np.nan if not recorded)
@@ -296,7 +302,7 @@ def func_encode_single_time_series(i, g, variables, variables_num_freq, T, dt, s
         raise Exception(i)
     return i, df_out
 
-def process_time_series_table(df_in, args):
+def transform_time_series_table(df_in, args):
     data_path = args.data_path
     theta_freq = args.theta_freq
     stats_functions = args.stats_functions
@@ -389,6 +395,7 @@ def process_time_series_table(df_in, args):
     df_time_series = pd.DataFrame(data=time_series, index=index, columns=columns)
     
     # Print metadata
+    print('DONE: Transforming each example...')
     ## Freq: Count missing entries using mask
     ts_mask = df_time_series[[col for col in df_time_series if col.endswith('_mask')]]
     ts_mask.columns = [col.replace('_mask', '') for col in ts_mask.columns]
@@ -404,14 +411,14 @@ def process_time_series_table(df_in, args):
     imputed = (1-ts_mask).astype(bool) & (ts_delta_time > 0)
     print('(freq) number of imputed entries :\t', 
           '{}'.format(imputed.sum().sum(), ts_delta_time.size))
-    print(imputed.sum().reset_index().to_string(header=None, index=None))
+    imputed.sum().rename('count').to_csv(data_path + '/' + 'freq_imputed.csv')
     
     not_imputed = (1-ts_mask).astype(bool) & (ts_delta_time == 0)
     print('(freq) number of not imputed entries :\t', 
           '{}'.format(not_imputed.sum().sum(), ts_delta_time.size))
-    print(not_imputed.sum().reset_index().to_string(header=None, index=None))
+    not_imputed.sum().rename('count').to_csv(data_path + '/' + 'freq_not_imputed.csv')
     
-    ## Non-Freq: Count misisng entries
+    ## Non-Freq: Count missing entries
     non_freq_cols = sorted([c + '_value' for c in set(variables) - set(variables_num_freq)])
     non_freqs = df_time_series[non_freq_cols]
     print('(non-freq) number of missing entries :\t',
