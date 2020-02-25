@@ -5,17 +5,9 @@ import numpy as np
 import time
 import os
 
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
 import argparse
+from .helpers import str2bool
+
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--T',               type=float,   required=True)
 parser.add_argument('--dt',              type=float,   required=True)
@@ -96,6 +88,10 @@ print('N = {}'.format(N))
 print('L = {}'.format(L))
 print('', flush=True)
 
+
+######
+# Main
+######
 if args.prefilter:
     print_header('1) Pre-filter')
     df_data = pre_filter(df_data, theta_1, df_population, args)
@@ -106,7 +102,7 @@ df_data, df_types = detect_variable_data_type(df_data, value_type_override, args
 df_time_invariant, df_time_series = split_by_timestamp_type(df_data)
 
 # Process time-invariant data
-s, s_feature_names, s_feature_aliases = transform_time_invariant(df_time_invariant, args)
+s, s_feature_names, s_feature_aliases = process_time_invariant(df_time_invariant, args)
 
 # Process time-dependent data
-X, X_feature_names, X_feature_aliases = transform_time_dependent(df_time_series, args)
+X, X_feature_names, X_feature_aliases = process_time_dependent(df_time_series, args)
