@@ -180,7 +180,7 @@ def process_time_dependent(df_data_time_series, args):
     print('Output')
     print('X: shape={}, density={:.3f}'.format(X.shape, X.density))
     sparse.save_npz(dir_path + 'X.npz', X)
-    with open(dir_path + 's.feature_names.json', 'w') as f:
+    with open(dir_path + 'X.feature_names.json', 'w') as f:
         json.dump(list(X_feature_names), f, sort_keys=True)
     with open(dir_path + 'X.feature_aliases.json', 'w') as f:
         json.dump(X_feature_aliases, f, sort_keys=True)
