@@ -1,6 +1,6 @@
 numpy>=1.16
-pandas>=0.24.2
-sparse>=0.7.0
-sklearn>=0.21.0
-tqdm>=2.2.3
+pandas>=1.0.1
+sparse>=0.9.1
+scikit-learn>=0.22.1
+tqdm>=4.43.0
 joblib>=0.13.2
