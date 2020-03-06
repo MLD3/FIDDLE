@@ -69,6 +69,8 @@ elif os.path.isfile(data_path + 'input_data.pickle'):
 elif os.path.isfile(data_path + 'input_data.csv'):
     input_fname = data_path + 'input_data.csv'
     df_data = pd.read_csv(input_fname)
+else:
+    raise NotImplementedError
 
 
 from .steps import *
