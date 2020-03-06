@@ -102,7 +102,9 @@ df_data, df_types = detect_variable_data_type(df_data, value_type_override, args
 df_time_invariant, df_time_series = split_by_timestamp_type(df_data)
 
 # Process time-invariant data
-s, s_feature_names, s_feature_aliases = process_time_invariant(df_time_invariant, args)
+if len(df_time_invariant) > 0:
+    s, s_feature_names, s_feature_aliases = process_time_invariant(df_time_invariant, args)
 
 # Process time-dependent data
-X, X_feature_names, X_feature_aliases = process_time_dependent(df_time_series, args)
+if len(df_time_series) > 0:
+    X, X_feature_names, X_feature_aliases = process_time_dependent(df_time_series, args)
