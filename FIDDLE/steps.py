@@ -107,6 +107,7 @@ def split_by_timestamp_type(df):
     print('# rows    (time-dependent):', len(df_time_series))
     return df_time_invariant, df_time_series
 
+
 def process_time_invariant(df_data_time_invariant, args):
     data_path = args.data_path
     df_population = args.df_population
@@ -121,7 +122,7 @@ def process_time_invariant(df_data_time_invariant, args):
     print('Time elapsed: %f seconds' % (time.time() - start_time))
 
     ## Discretize
-    s_all, s_all_feature_names = map_time_invariant_features(df_time_invariant, args.binarize)
+    s_all, s_all_feature_names = map_time_invariant_features(df_time_invariant, args)
     sparse.save_npz(dir_path + 's_all.npz', s_all)
     with open(dir_path + 's_all.feature_names.json', 'w') as f:
         json.dump(list(s_all_feature_names), f, sort_keys=True)
@@ -205,16 +206,11 @@ def transform_time_invariant_table(df_in, df_population):
     print('number of missing entries :\t', '{} out of {} total'.format(df_value.isna().sum().sum(), df_value.size))
     return df_value
 
-def map_time_invariant_features(df, bin_numeric=True):
+def map_time_invariant_features(df, args):
     # Categorical -> binary features
     # Numeric -> binary/float-valued features
-    if bin_numeric:
-#         df_mixed = df.apply(smart_qcut, q=5)
-#         features_mixed = pd.get_dummies(df_mixed, columns=df_mixed.columns, prefix_sep=':')
-#         time_invariant_features = features_mixed
-#         assert time_invariant_features.astype(int).dtypes.nunique() == 1
-        
-        out = [smart_qcut_dummify(df[col], q=5) for col in df.columns]
+    if args.binarize:
+        out = [smart_qcut_dummify(df[col], q=5, use_ordinal_encoding=use_ordinal_encoding) for col in df.columns]
         time_invariant_features = pd.concat(out, axis=1)
         feature_names_all = time_invariant_features.columns.values
         sdf = time_invariant_features.astype(pd.SparseDtype(int, fill_value=0))
@@ -451,10 +447,10 @@ def map_time_series_features(df_time_series, dtypes, args):
         print('    Converting variables to binary features')
         if parallel:
             out = Parallel(n_jobs=n_jobs, verbose=10)( # Need to share global variables
-                delayed(smart_qcut_dummify)(col_data, q=5) for col_data in ts_mixed_cols
+                delayed(smart_qcut_dummify)(col_data, q=5, use_ordinal_encoding=use_ordinal_encoding) for col_data in ts_mixed_cols
             )
         else:
-            out = [smart_qcut_dummify(col_data, q=5) for col_data in tqdm(ts_mixed_cols)]
+            out = [smart_qcut_dummify(col_data, q=5, use_ordinal_encoding=use_ordinal_encoding) for col_data in tqdm(ts_mixed_cols)]
     else:
         dtype = float
         df = ts_mixed.copy()

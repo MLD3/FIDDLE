@@ -80,20 +80,26 @@ def select_dtype(df, dtype, dtypes=None):
             assert False
     return
 
-def smart_qcut_dummify(x, q):
-    z = smart_qcut(x, q)
-    return pd.get_dummies(z, prefix=z.name)
-
-def smart_qcut(x, q):
+def smart_qcut_dummify(x, q, use_ordinal_encoding=False):
     # ignore strings when performing qcut
-    x = x.copy()
-    x = x.apply(make_float)
-    m = x.apply(np.isreal)
-    if x.loc[m].dropna().nunique() > 1: # when more than one numeric values
-        x.loc[m] = pd.qcut(x.loc[m].to_numpy(), q=q, duplicates='drop')
-#         bins = np.percentile(x.loc[m].to_numpy(), [0, 20, 40, 60, 80, 100])
-#         x.loc[m] = pd.cut(x, bins)
-    return x
+    z = x.copy()
+    z = z.apply(make_float)
+    m = z.apply(np.isreal)
+    if z.loc[m].dropna().nunique() > 1: # when more than one numeric values
+        if use_ordinal_encoding:
+            bin_edges = np.nanpercentile(z.loc[m].astype(float).to_numpy(), [0, 20, 40, 60, 80, 100])
+            bin_edges = np.unique(bin_edges)
+            col_names = ['{}>={}'.format(z.name, bin_edge) for bin_edge in bin_edges[:-1]]
+            out = pd.DataFrame(0, z.index, col_names)
+            for i, bin_edge in enumerate(bin_edges[:-1]):
+                out.loc[m, col_names[i]] = (z.loc[m] > bin_edge).astype(int)
+            out = pd.concat([out, pd.get_dummies(z.where(~m, np.nan), prefix=z.name)], axis=1)
+        else:
+            z.loc[m] = pd.qcut(z.loc[m].to_numpy(), q=q, duplicates='drop')
+            out = pd.get_dummies(z, prefix=z.name)
+    else:
+        out = pd.get_dummies(x, prefix=x.name)
+    return out
 
 def smart_dummify_impute(x):
     x = x.copy()

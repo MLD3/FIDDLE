@@ -7,6 +7,7 @@ var_col = config['column_names']['var_name']
 val_col = config['column_names']['var_value']
 t_col = config['column_names']['t']
 
+use_ordinal_encoding = config['use_ordinal_encoding']
 value_type_override = config['value_types']
 
 parallel = True

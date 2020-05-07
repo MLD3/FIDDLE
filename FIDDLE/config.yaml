@@ -5,6 +5,8 @@ column_names:
     var_name: variable_name
     var_value: variable_value
 
+use_ordinal_encoding: no
+
 value_types:
     # enter the feature type that you would like to override in the following format:
     FIRST_WARDID: Categorical
