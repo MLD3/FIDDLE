@@ -100,7 +100,7 @@ if args.prefilter:
     df_data.to_csv(data_path + 'pre-filtered.csv', index=False)
 
 print_header('2) Transform; 3) Post-filter')
-df_data, df_types = detect_variable_data_type(df_data, value_type_override, args)
+df_data, df_types = parse_variable_data_type(df_data, value_type_override, args)
 df_time_invariant, df_time_series = split_by_timestamp_type(df_data)
 
 # Process time-invariant data

@@ -6,6 +6,8 @@ ID_col = config['column_names']['ID']
 var_col = config['column_names']['var_name']
 val_col = config['column_names']['var_value']
 t_col = config['column_names']['t']
+hierarchical_sep = config['hierarchical_sep']
+hierarchical_levels = config['hierarchical_levels']
 
 use_ordinal_encoding = config['use_ordinal_encoding']
 value_type_override = config['value_types']

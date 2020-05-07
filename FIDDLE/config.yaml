@@ -6,10 +6,12 @@ column_names:
     var_value: variable_value
 
 use_ordinal_encoding: no
+hierarchical_sep: ":"
+hierarchical_levels: [0, 1, 2]
 
 value_types:
     # enter the feature type that you would like to override in the following format:
     FIRST_WARDID: Categorical
-    MedA:
-        AMOUNT: Numeric
-        ROUTE: Categorical
+    MedA_AMOUNT: Numeric
+    MedA_ROUTE: Categorical
+    ICD9_CODE: hierarchical_ICD9

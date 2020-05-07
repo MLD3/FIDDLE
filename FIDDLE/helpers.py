@@ -32,6 +32,62 @@ def print_header(*content, char='='):
 
 
 ######
+# Hierarchical value type
+# - Currently supports parsing/mapping ICD9, ICD10; will add support for CPT, DRG
+# - Requires the user to specify which level(s) of the hierarchy to encode
+# - Each hierachical variable is mapped to multiple rows with string values after Pre-filter
+#   as the first step of Transform, and will be treated as categorical variables
+######
+from icd9cms import icd9
+import icd10
+
+def map_icd_hierarchy(s, version=9):
+    s = str(s)
+    code9 = icd9.search(s)
+    code10 = icd10.find(s)
+    if code9 is None and code10 is None:
+        raise Exception("Invalid ICD code", s)
+    
+    if version == 9:
+        if code9 is not None:
+            return list(reversed([code9.alt_code] + code9.ancestors()))
+        else:
+            raise Exception("Invalid ICD version", s)
+    elif version == 10:
+        if code10 is not None:
+            return [code10.chapter, code10.block, code10.code[:3], code10.code]
+        else:
+            try:
+                # Attempt to convert from version 9 to 10
+                s_ = convert_icd_9_to_10(code9.alt_code)
+                code = icd10.find(s_)
+                if code is None:
+                    # Fall back to version 9
+                    return list(reversed([code9.alt_code] + code9.ancestors()))
+                else:
+                    return [code.chapter, code.block, code.code[:3], code.code]
+            except:
+                warnings.warn('Conversion failed: ' + str(s))
+                return list(reversed([code9.alt_code] + code9.ancestors()))
+                # raise Exception('Conversion error: ' + str(s))
+    else:
+        raise Exception("Invalid ICD version", s)
+
+import warnings
+_df_icd_mapping = pd.read_csv('https://raw.githubusercontent.com/bhanratt/ICD9CMtoICD10CM/master/icd9to10dictionary.txt', sep='|', header=None, names=['ICD9', 'ICD10', 'Description'])
+_icd_mapping_9_to_10 = dict(_df_icd_mapping[['ICD9', 'ICD10']].values)
+def convert_icd_9_to_10(s):
+    try:
+        return str(
+            _icd_mapping_9_to_10.get(s) or 
+            _icd_mapping_9_to_10.get(icd9.search(s).parent.alt_code) or
+            _icd_mapping_9_to_10.get(icd9.search(s).parent.parent.alt_code)
+        )
+    except:
+        warnings.warn('Conversion failed: ' + str(s))
+        return s
+
+######
 # Transform
 ######
 

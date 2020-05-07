@@ -21,12 +21,15 @@ def pre_filter(df, threshold, df_population, args):
     print('Remove rows with t outside of [0, {}]'.format(T))
     df = df[pd.isnull(df[t_col]) | ((0 <= df[t_col]) & (df[t_col] < T))]
     
-    # Data tables should not contain duplicate rows
+    # Data table should not contain duplicate rows with any numerical values
     # Check for inconsistencies
-    dups = df.duplicated(subset=[ID_col, t_col, var_col], keep=False)
-    if any(dups):
-        print(df[dups].head())
-        raise Exception('Inconsistent values recorded')
+    var_names = [v for v, ty in value_type_override.items() if 'hierarchical' in ty.lower() or 'categorical' in ty.lower()]
+    df_tmp = df[~df[var_col].isin(var_names)]
+    dups = df_tmp.duplicated(subset=[ID_col, t_col, var_col], keep=False)
+    df_dups = df_tmp[dups]
+    if any(dups) and any(is_numeric(v) for v in df_dups[val_col] if not pd.isnull(v)):
+        print(df_dups.head())
+        raise Exception('Inconsistent numerical values recorded')
     
     # Remove variables that occur too rarely as defined by the threshold
     print('Remove rare variables (<= {})'.format(threshold))
@@ -50,13 +53,52 @@ def pre_filter(df, threshold, df_population, args):
     return df_out
 
 
-def detect_variable_data_type(df_data, value_type_override, args):
+def parse_variable_data_type(df_data, value_type_override, args):
+    # 1. parse hierarchical values (e.g. ICD codes) into strings
+    # 2. automatically detect value types, respecting user override, and set dtypes in DataFrames
+    # 3. pre-map duplicated non-numerical values into multiple categorical variables
     data_path = args.data_path
-    print_header('*) Detecting value types', char='-')
-    
-    data_types = []
     df = df_data
     assert val_col in df.columns
+    print_header('*) Detecting and parsing value types', char='-')
+    
+    ## 1. Hierarchical values
+    var_names = [v for v, ty in value_type_override.items() if 'hierarchical' in ty.lower()]
+    if len(var_names) == 0: # No hierarchical values
+        pass
+    
+    for var_name in var_names:
+        var_type = value_type_override[var_name]
+        df_var = df.loc[df[var_col] == var_name, val_col]
+        if var_type.lower() == 'hierarchical_icd':
+            # need to figure out ICD version
+            raise NotImplementedError
+        elif var_type.lower() == 'hierarchical_icd9':
+            df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=9))
+        elif var_type.lower() == 'hierarchical_icd10':
+            df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=10))
+        else:
+            df_var = df_var.apply(lambda s: s.split(hierarchical_sep))
+        
+        # Assign mapped values back to original df
+        df.loc[df[var_col] == var_name, val_col] = df_var
+    
+    # Only encode selected levels
+    df_nonhier = df[~df[var_col].isin(var_names)]
+    df_hier = df[df[var_col].isin(var_names)]
+    df_hier_levels = []
+    for hier_level in hierarchical_levels:
+        # encode level if available
+        df_hier_level = df_hier.copy()
+        df_hier_level[val_col] = df_hier_level[val_col].apply(lambda h: h[min(hier_level, len(h))])
+        df_hier_levels.append(df_hier_level)
+    df_hier_levels = pd.concat(df_hier_levels).drop_duplicates()
+    
+    # Combine hierarchical and non-hierarchical data
+    df = pd.concat([df_nonhier, df_hier_levels])
+    
+    ## 2. Detect value types
+    data_types = []
 
     # Collect the unique values of each variable
     # values_by_variable: dict(variable_name -> [value1, value2, ...])
@@ -91,6 +133,18 @@ def detect_variable_data_type(df_data, value_type_override, args):
     fpath = data_path + 'value_types.csv'
     df_types.to_csv(fpath, quoting=1)
     print('Saved as:', fpath)
+    
+    ## 3. Pre-map duplicated non-numerical values to separate variables
+    var_names = [v for v, ty in data_types if 'numeric' not in ty.lower() and 'none' not in ty.lower()]
+    df_non_num = df[df[var_col].isin(var_names)].copy()
+    dup_ = df_non_num.duplicated(subset=[ID_col, t_col, var_col], keep=False)
+    df_non_num_dup = df_non_num[dup_]
+    dup_var_names = df_non_num_dup[var_col].unique()
+    df_non_num_dup[var_col] = df_non_num_dup[var_col].astype(str) + ':' + df_non_num_dup[val_col].astype(str)
+    df_non_num_dup[val_col] = 1
+    df_non_num[dup_] = df_non_num_dup
+    df[df[var_col].isin(var_names)] = df_non_num
+    
     return df, df_types['value_type']
 
 
