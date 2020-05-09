@@ -4,11 +4,13 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Requires python 3.6 or above. Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
+Note: This README contains latex equations and is best viewed on GitLab. 
+
 ## Publications & Resources
 
 - Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. <b>[Democratizing EHR Analyses - a Comprehensive, Generalizable Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf)</b>. Presented at MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
 - [Poster](https://umich.box.com/s/c6rqkpd2t7gdagbjn0l5cuhaobq5zfoo)
-- [Spotlight presentation](https://www.ustream.tv/recorded/123483299) @59:35
+- [MiCHAMP talk](https://umich.box.com/s/6jsrspsuj1hqldkpohv3fyz73p4902po)
 - Our journal paper is currently under review by JAMIA and will be made available soon
 
 ## Usage Notes
@@ -65,4 +67,4 @@ Finally, for the summary statistics functions, we included by default the most b
 
 ## Experiments
 
-In order to show the flexibility and utility of FIDDLE, swe conducted several experiments using data from MIMIC-III. The code to reproduce the results are located in the `mimic3_experiments` subdirectory. 
+In order to show the flexibility and utility of FIDDLE, we conducted several experiments using data from MIMIC-III and eICU. The code to reproduce the results are located at https://gitlab.eecs.umich.edu/MLD3/FIDDLE_experiments. The experiments were performed using FIDDLE v0.1.0 and reported in the JAMIA paper; bug fixes and new functionalities have since been implemented and may affect the numerical results. 
