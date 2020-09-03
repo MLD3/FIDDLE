@@ -1,0 +1,16 @@
+library(argparse)
+parser <- ArgumentParser(description=' ')
+parser$add_argument('--data_path', type="character")
+parser$add_argument('--population',      type="character")
+parser$add_argument('--T_',                    type="double")
+parser$add_argument('--dt',                     type="double")
+parser$add_argument('--theta_1',         type="double",   default='0.001')
+parser$add_argument('--theta_2',         type="double",   default='0.001')
+parser$add_argument('--theta_freq',      type="double",   default='1.0')
+parser$add_argument('--stats_functions', nargs='+',  type="character",  default='min max mean' )
+parser$add_argument('--binarize',        type="integer", default='1', nargs='?', const=TRUE)
+args = parser$parse_args()
+
+cmd = paste0('python -m FIDDLE.run --data_path=', args$data_path, ' --population=', args$population, '  --T=', args$T_,  ' --dt=' , args$dt,  ' --theta_1=', args$theta_1,  ' --theta_2=', args$theta_2,  ' --theta_freq=', args$theta_freq,  ' --stats_functions ',  args$stats_functions)
+
+system(cmd)
