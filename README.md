@@ -4,20 +4,35 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Requires python 3.6 or above. Required packages and versions are listed in `requirements.txt`. Older versions may still work but have not been tested. 
 
-Note: This README contains latex equations and is best viewed on GitLab. 
+Note: This README contains latex equations and is best viewed on the GitLab site (https://gitlab.eecs.umich.edu/mld3/FIDDLE). 
 
 ## Publications & Resources
+- Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
+- Authors: Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, Michael W. Sjoding, and Jenna Wiens. 
+- Published in JAMIA (Journal of the American Medical Informatics Association), October 2020: [article link](https://doi.org/10.1093/jamia/ocaa139)
+- Previously presented at MLHC 2019 (<i>[Machine Learning for Healthcare](https://www.mlforhc.org/)</i>) as a [clinical abstract](https://www.mlforhc.org/s/Sjoding-jete.pdf)
+- News coverage on HealthcareITNews: [link](https://www.healthcareitnews.com/news/new-framework-helps-streamline-ehr-data-extraction)
+- [Poster](https://www.dropbox.com/s/5rid9x12w6f8u50/MLHC%202019%20-%20FIDDLE%20poster.pdf?dl=0) | [Slides](https://www.dropbox.com/s/e6e1tfen2ae85hn/FIDDLE%20-%20MiCHAMP%2020200110%20final.pptx?dl=0)
 
-- Michael W. Sjoding, Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, and Jenna Wiens. <b>[Democratizing EHR Analyses - a Comprehensive, Generalizable Pipeline for Learning from Clinical Data](https://www.mlforhc.org/s/Sjoding-jete.pdf)</b>. Presented at MLHC <i>([Machine Learning for Healthcare](https://www.mlforhc.org/), Clinical Abstract)</i>, 2019.
-- [Poster](https://umich.box.com/s/c6rqkpd2t7gdagbjn0l5cuhaobq5zfoo)
-- [MiCHAMP talk](https://umich.box.com/s/6jsrspsuj1hqldkpohv3fyz73p4902po)
-- Our journal paper is currently under review by JAMIA and will be made available soon
+If you use FIDDLE in your research, please cite the following publication:
+
+```
+@article{10.1093/jamia/ocaa139,
+    author = {Tang, Shengpu and Davarmanesh, Parmida and Song, Yanmeng and Koutra, Danai and Sjoding, Michael W and Wiens, Jenna},
+    title = "{Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data}",
+    journal = {Journal of the American Medical Informatics Association},
+    year = {2020},
+    month = {10},
+    issn = {1527-974X},
+    doi = {10.1093/jamia/ocaa139},
+}
+```
 
 ## Usage Notes
 FIDDLE generates feature vectors based on data within the observation period $`t\in[0,T]`$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $`i`$, $`\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}`$ where $`s_i \in R^d`$ contains time-invariant features and $`x_i \in R^{L \times D}`$ contains time-dependent features.
 
 Input: 
-- formatted EHR data, `.csv` or `.p`/`.pickle` files, table with 4 columns: \[`ID`, `t`, `variable_name`, `variable_value`\]
+- formatted EHR data: `.csv` or `.p`/`.pickle` file, a table with 4 columns \[`ID`, `t`, `variable_name`, `variable_value`\]
 - population file: a list of unique `ID`s you want processed
 - arguments:
     - T: The time of prediction; time-dependent features will be generated using data in $`t\in[0,T]`$. 
