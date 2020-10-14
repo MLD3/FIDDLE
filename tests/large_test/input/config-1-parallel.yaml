@@ -1,0 +1,5 @@
+discretize: yes
+use_ordinal_encoding: no
+
+parallel: yes
+n_jobs: 4

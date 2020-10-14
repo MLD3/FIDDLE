@@ -5,9 +5,16 @@ column_names:
     var_name: variable_name
     var_value: variable_value
 
-use_ordinal_encoding: no
+parallel: yes
+n_jobs: 72
+batch_size: 100
+
 hierarchical_sep: ":"
 hierarchical_levels: [0, 1, 2]
+
+discretize: yes
+use_ordinal_encoding: no
+discretization: ~
 
 value_types:
     # enter the feature type that you would like to override in the following format:

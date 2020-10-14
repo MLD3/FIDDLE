@@ -1,0 +1,10 @@
+discretize: yes
+use_ordinal_encoding: no
+S_discretization_bins: 'input/S_all.discretization.json'
+X_discretization_bins: 'input/X_all.discretization.json'
+
+parallel: no
+n_jobs: 1
+
+value_types:
+    ROOM: Categorical

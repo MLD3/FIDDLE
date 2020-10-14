@@ -1,16 +1,27 @@
 import os, yaml
-with open(os.path.join(os.path.dirname(__file__), 'config.yaml')) as f:
-    config = yaml.full_load(f)
+import copy
 
-ID_col = config['column_names']['ID']
-var_col = config['column_names']['var_name']
-val_col = config['column_names']['var_value']
-t_col = config['column_names']['t']
-hierarchical_sep = config['hierarchical_sep']
-hierarchical_levels = config['hierarchical_levels']
+with open(os.path.join(os.path.dirname(__file__), 'config-default.yaml')) as f:
+    config_default = yaml.safe_load(f)
 
-use_ordinal_encoding = config['use_ordinal_encoding']
-value_type_override = config['value_types']
+def load_config(fname):
+    config = copy.deepcopy(config_default)
+    if fname:
+        config_custom = yaml.safe_load(open(fname, 'r'))
+        for k, v in config_custom.items():
+            config[k] = v
+    return config
 
-parallel = True
-n_jobs = 72
+
+ID_col = 'ID'
+t_col = 't'
+var_col = 'variable_name'
+val_col = 'variable_value'
+
+if 'column_names' in config_default:
+    ID_col = config_default['column_names'].get('ID', 'ID')
+    t_col = config_default['column_names'].get('t', 't')
+    var_col = config_default['column_names'].get('var_name', 'variable_name')
+    val_col = config_default['column_names'].get('var_value', 'variable_value')
+else:
+    pass

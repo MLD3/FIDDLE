@@ -1,8 +1,9 @@
-numpy>=1.16
-pandas>=1.0.1
-sparse>=0.9.1
-scikit-learn>=0.22.1
-tqdm>=4.43.0
-joblib>=0.13.2
-icd9cms>=0.2.1
-icd10-cm>=0.0.4
+pyyaml>=5.3
+numpy>=1.19
+pandas>=1.1
+sparse>=0.11
+scikit-learn>=0.23
+tqdm>=4.50
+joblib>=0.16
+icd9cms==0.2.1
+icd10-cm==0.0.4

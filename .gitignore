@@ -1,4 +1,5 @@
 data/*
+**output**/
 .ipynb_checkpoints
 *.png
 

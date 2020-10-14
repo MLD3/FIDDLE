@@ -1,0 +1,4 @@
+discretize: no
+
+parallel: yes
+n_jobs: 4

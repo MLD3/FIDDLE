@@ -1,28 +1,18 @@
-import argparse
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
-
-from .config import *
 import pandas as pd
 import numpy as np
 import scipy
 import sparse
 from collections import defaultdict
-
-from joblib import Parallel, delayed, parallel_backend
 from tqdm import tqdm
 
 from sklearn.feature_selection import VarianceThreshold
 import sklearn
 from collections import defaultdict
+
+try:
+    from .config import *
+except:
+    from config import *
 
 def print_header(*content, char='='):
     print()
@@ -95,11 +85,11 @@ def get_unique_variables(df):
     return sorted(df[var_col].unique())
 
 def get_frequent_numeric_variables(df_time_series, variables, threshold, args):
-    data_path = args.data_path
+    output_dir = args.output_dir
     df_population = args.df_population
     T, dt = args.T, args.dt
     
-    df_types = pd.read_csv(data_path + 'value_types.csv').set_index(var_col)['value_type']
+    df_types = pd.read_csv(output_dir + 'value_types.csv').set_index(var_col)['value_type']
     numeric_vars = [col for col in variables if df_types[col] == 'Numeric']
     df_num_counts = calculate_variable_counts(df_time_series, df_population)[numeric_vars] #gets the count of each variable for each patient. 
     variables_num_freq = df_num_counts.columns[df_num_counts.mean() >= threshold * np.floor(T/dt)]
@@ -136,23 +126,41 @@ def select_dtype(df, dtype, dtypes=None):
             assert False
     return
 
-def smart_qcut_dummify(x, q, use_ordinal_encoding=False):
+
+def compute_bin_edges(x, q):
     # ignore strings when performing qcut
     z = x.copy()
     z = z.apply(make_float)
     m = z.apply(np.isreal)
+    bin_edges = None
     if z.loc[m].dropna().nunique() > 1: # when more than one numeric values
-        if use_ordinal_encoding:
-            bin_edges = np.nanpercentile(z.loc[m].astype(float).to_numpy(), [0, 20, 40, 60, 80, 100])
-            bin_edges = np.unique(bin_edges)
-            col_names = ['{}>={}'.format(z.name, bin_edge) for bin_edge in bin_edges[:-1]]
-            out = pd.DataFrame(0, z.index, col_names)
-            for i, bin_edge in enumerate(bin_edges[:-1]):
-                out.loc[m, col_names[i]] = (z.loc[m] > bin_edge).astype(int)
-            out = pd.concat([out, pd.get_dummies(z.where(~m, np.nan), prefix=z.name)], axis=1)
+        if z.loc[m].dropna().nunique() == 2:
+            pass
         else:
-            z.loc[m] = pd.qcut(z.loc[m].to_numpy(), q=q, duplicates='drop')
-            out = pd.get_dummies(z, prefix=z.name)
+            bin_edges = list(np.unique(np.nanpercentile(z.loc[m].astype(float).values, np.linspace(0, 100, q+1))))
+    return (x.name, bin_edges)
+
+def smart_qcut_dummify_parallel(first_arg):
+    return smart_qcut_dummify(*first_arg)
+
+def smart_qcut_dummify(x, bin_edges, use_ordinal_encoding=False):
+    # ignore strings when performing qcut
+    z = x.copy()
+    z = z.apply(make_float)
+    m = z.apply(np.isreal)
+    if z.loc[m].dropna().nunique() > 1: # when more than one unique numeric values
+        if z.loc[m].dropna().nunique() == 2: # when only two unique numeric values
+            out = pd.get_dummies(x, prefix=x.name)
+        else:
+            if use_ordinal_encoding:
+                col_names = ['{}>={}'.format(z.name, bin_edge) for bin_edge in bin_edges[:-1]]
+                out = pd.DataFrame(0, z.index, col_names)
+                for i, bin_edge in enumerate(bin_edges[:-1]):
+                    out.loc[m, col_names[i]] = (z.loc[m] >= bin_edge).astype(int)
+                out = pd.concat([out, pd.get_dummies(z.where(~m, np.nan), prefix=z.name)], axis=1)
+            else:
+                z.loc[m] = pd.cut(z.loc[m].to_numpy(), bin_edges, duplicates='drop', include_lowest=True)
+                out = pd.get_dummies(z, prefix=z.name)
     else:
         out = pd.get_dummies(x, prefix=x.name)
     return out
@@ -202,13 +210,13 @@ def pivot_event_table(df):
     # Handle cases where the same variable is recorded multiple times with the same timestamp
     # Adjust the timestamps by epsilon so that all timestamps are unique
     eps = 1e-6
-    m_dups = df.duplicated([ID_col, t_col, var_col], keep=False)
+    m_dups = df.duplicated([t_col, var_col], keep=False)
     df_dups = df[m_dups].copy()
     for v, df_v in df_dups.groupby(var_col):
         df_dups.loc[df_v.index, t_col] += eps * np.arange(len(df_v))
     
     df = pd.concat([df[~m_dups], df_dups])
-    assert not df.duplicated([ID_col, t_col, var_col], keep=False).any()
+    assert not df.duplicated([t_col, var_col], keep=False).any()
     
     return pd.pivot_table(df, val_col, t_col, var_col, 'first')
 
