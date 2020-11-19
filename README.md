@@ -44,7 +44,7 @@ Refer to the notebook `tests/small_test/Run-docker.ipynb` for an example to run 
 
 
 ## Usage Notes
-FIDDLE generates feature vectors based on data within the observation period <img src="https://render.githubusercontent.com/render/math?math=t\in[0,T]">. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example <img src="https://render.githubusercontent.com/render/math?math=i">, <img src="https://render.githubusercontent.com/render/math?math=\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}"> where <img src="https://render.githubusercontent.com/render/math?math=s_i \in R^d"> contains time-invariant features and <img src="https://render.githubusercontent.com/render/math?math=x_i \in R^{L \times D}"> contains time-dependent features.
+FIDDLE generates feature vectors based on data within the observation period <img src="https://render.githubusercontent.com/render/math?math=t\in[0,T]">. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example <img src="https://render.githubusercontent.com/render/math?math=i">, <img src="https://render.githubusercontent.com/render/math?math=\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}"> where <img src="https://render.githubusercontent.com/render/math?math=s_i \in \mathbb{R}^d"> contains time-invariant features and <img src="https://render.githubusercontent.com/render/math?math=x_i \in \mathbb{R}^{L \times D}"> contains time-dependent features.
 
 Input:
 - formatted EHR data: `.csv` or `.p`/`.pickle` file, a table with 4 columns \[`ID`, `t`, `variable_name`, `variable_value`\]
