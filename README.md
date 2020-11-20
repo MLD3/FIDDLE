@@ -4,7 +4,7 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Try a quick demo here: [tiny.cc/FIDDLE-demo](https://tiny.cc/FIDDLE-demo)
 
-Contributions and feedback are welcome; please submit issues on the GitHub site (https://github.com/shengpu1126/FIDDLE). 
+Contributions and feedback are welcome; please submit issues on the GitHub site: https://github.com/shengpu1126/FIDDLE/issues. 
 
 ## Publications & Resources
 - Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
