@@ -4,7 +4,7 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Try a quick demo here: [tiny.cc/FIDDLE-demo](https://tiny.cc/FIDDLE-demo)
 
-Note: This README contains latex equations and is best viewed on the [GitLab site](https://gitlab.eecs.umich.edu/mld3/FIDDLE).
+Contributions and feedback are welcome; please submit issues on the GitHub site: https://github.com/shengpu1126/FIDDLE/issues. 
 
 ## Publications & Resources
 - Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
@@ -44,7 +44,7 @@ Refer to the notebook `tests/small_test/Run-docker.ipynb` for an example to run 
 
 
 ## Usage Notes
-FIDDLE generates feature vectors based on data within the observation period $`t\in[0,T]`$. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example $`i`$, $`\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}`$ where $`s_i \in R^d`$ contains time-invariant features and $`x_i \in R^{L \times D}`$ contains time-dependent features.
+FIDDLE generates feature vectors based on data within the observation period <img src="https://render.githubusercontent.com/render/math?math=t\in[0,T]">. This feature representation can be used to make predictions of adverse outcomes at t=T. More specifically, FIDDLE outputs a set of binary feature vectors for each example <img src="https://render.githubusercontent.com/render/math?math=i">, <img src="https://render.githubusercontent.com/render/math?math=\{(s_i,x_i)\ \text{for}\ i=1 \dots N\}"> where <img src="https://render.githubusercontent.com/render/math?math=s_i \in \mathbb{R}^d"> contains time-invariant features and <img src="https://render.githubusercontent.com/render/math?math=x_i \in \mathbb{R}^{L \times D}"> contains time-dependent features.
 
 Input:
 - formatted EHR data: `.csv` or `.p`/`.pickle` file, a table with 4 columns \[`ID`, `t`, `variable_name`, `variable_value`\]
@@ -54,7 +54,7 @@ Input:
     - specifies additional settings by providing a custom `config.yaml` file
     - a default config file is located at `FIDDLE/config-default.yaml`
 - arguments:
-    - T: The time of prediction; time-dependent features will be generated using data in $`t\in[0,T]`$.
+    - T: The time of prediction; time-dependent features will be generated using data in <img src="https://render.githubusercontent.com/render/math?math=t\in[0,T]">.
     - dt: the temporal granularity at which to "window" time-dependent data.
     - theta_1: The threshold for Pre-filter.
     - theta_2: The threshold for Post-filter.
@@ -95,7 +95,7 @@ The user-defined arguments of FIDDLE include: T, dt, theta_1, theta_2, theta_fre
 
 (ii) The temporal density of data, that is, how often the variables are usually measured, also affects the setting of dt. This can be achieved by plotting a histogram of recording frequency. In our case, we observed that the maximum hourly frequency is ~1.2 times, which suggests dt should not be smaller than 1 hour. While most variables are recorded on average <0.1 time per hour (most of the time not recorded), the 6 vital signs are recorded slightly >1 time per hour. Thus, given that in the ICU, vital signs are usually collected once per hour, we set dt=1. This also implies the setting of θ_freq to be 1. Besides determining the value for dt from context (how granular we want to encode the data), we can also sweep the range (if there are sufficient computational resources and time) given the prediction frequency and the temporal density of data.
 
-(iii) We recommend setting θ_1=θ_2=θ and be conservative to avoid removing information that could be potentially useful. For binary classification, the rule-of-the-thumb we suggest is to set θ to be about 1/100 of the minority class. For example, our cohorts consist of ~10% positive cases, so setting θ=0.001 is appropriate, whereas for a cohort with only 1% positive cases, then θ=0.0001 is more appropriate. Given sufficient computational resources and time, the value of θ can also be swept and optimized.
+(iii) We recommend setting θ<sub>1</sub>=θ<sub>2</sub>=θ and be conservative to avoid removing information that could be potentially useful. For binary classification, the rule-of-the-thumb we suggest is to set θ to be about 1/100 of the minority class. For example, our cohorts consist of ~10% positive cases, so setting θ=0.001 is appropriate, whereas for a cohort with only 1% positive cases, then θ=0.0001 is more appropriate. Given sufficient computational resources and time, the value of θ can also be swept and optimized.
 
 Finally, for the summary statistics functions, we included by default the most basic statistics functions are minimum, maximum, and mean. If on average, we expect more than one value per time bin, then we can also include higher order statistics such as standard deviation and linear slope.
 

@@ -80,7 +80,7 @@ def main():
     S_discretization_bins = config.get('S_discretization_bins')
     X_discretization_bins = config.get('X_discretization_bins')
     if S_discretization_bins:
-        args.s_discretization_bins = json.load(open(S_discretization_bins, 'r'))
+        args.S_discretization_bins = json.load(open(S_discretization_bins, 'r'))
     if X_discretization_bins:
         args.X_discretization_bins = json.load(open(X_discretization_bins, 'r'))
 
