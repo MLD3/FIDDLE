@@ -17,7 +17,7 @@ Contributions and feedback are welcome; please submit issues on the GitHub site:
 If you use FIDDLE in your research, please cite the following publication:
 
 ```
-@article{10.1093/jamia/ocaa139,
+@article{FIDDLE,
     author = {Tang, Shengpu and Davarmanesh, Parmida and Song, Yanmeng and Koutra, Danai and Sjoding, Michael W and Wiens, Jenna},
     title = "{Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data}",
     journal = {Journal of the American Medical Informatics Association},
