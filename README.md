@@ -81,8 +81,8 @@ s = sparse.load_npz('{data_path}/s.npz'.format(data_path=...)).todense()
 Example usage:
 ```bash
 python -m FIDDLE.run \
-    --data_path='./test/small_test/' \
-    --population='./test/small_test/pop.csv' \
+    --data_path='./tests/small_test/' \
+    --population='./tests/small_test/pop.csv' \
     --T=24 --dt=5 \
     --theta_1=0.001 --theta_2=0.001 --theta_freq=1 \
     --stats_functions 'min' 'max' 'mean'
