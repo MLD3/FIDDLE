@@ -153,10 +153,10 @@ def smart_qcut_dummify(x, bin_edges, use_ordinal_encoding=False):
             out = pd.get_dummies(x, prefix=x.name)
         else:
             if use_ordinal_encoding:
-                col_names = ['{}>={}'.format(z.name, bin_edge) for bin_edge in bin_edges[:-1]]
+                col_names = ['{}>{}'.format(z.name, bin_edge) for bin_edge in bin_edges[:-1]]
                 out = pd.DataFrame(0, z.index, col_names)
                 for i, bin_edge in enumerate(bin_edges[:-1]):
-                    out.loc[m, col_names[i]] = (z.loc[m] >= bin_edge).astype(int)
+                    out.loc[m, col_names[i]] = (z.loc[m] > bin_edge).astype(int)
                 out = pd.concat([out, pd.get_dummies(z.where(~m, np.nan), prefix=z.name)], axis=1)
             else:
                 z.loc[m] = pd.cut(z.loc[m].astype(float).to_numpy(), bin_edges, duplicates='drop', include_lowest=True)
