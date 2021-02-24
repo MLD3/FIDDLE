@@ -4,7 +4,7 @@ FIDDLE – <b>F</b>lex<b>I</b>ble <b>D</b>ata-<b>D</b>riven pipe<b>L</b>in<b>E</
 
 Try a quick demo here: [tiny.cc/FIDDLE-demo](https://tiny.cc/FIDDLE-demo)
 
-Contributions and feedback are welcome; please submit issues on the GitHub site: https://github.com/shengpu1126/FIDDLE/issues. 
+Contributions and feedback are welcome; please submit issues on the GitHub site: https://github.com/MLD3/FIDDLE/issues. 
 
 ## Publications & Resources
 - Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
@@ -103,4 +103,4 @@ Finally, for the summary statistics functions, we included by default the most b
 
 ## Experiments
 
-In order to show the flexibility and utility of FIDDLE, we conducted several experiments using data from MIMIC-III and eICU. The code to reproduce the results are located at https://gitlab.eecs.umich.edu/MLD3/FIDDLE_experiments. The experiments were performed using FIDDLE v0.1.0 and reported in the JAMIA paper; bug fixes and new functionalities have since been implemented and may affect the numerical results.
+In this repository, we release FIDDLE as a standalone software. In order to show the flexibility and utility of FIDDLE, we conducted several experiments using data from MIMIC-III and eICU. The code to reproduce the results are located at https://github.com/MLD3/FIDDLE-experiments. The experiments were performed using FIDDLE v0.1.0 and reported in the JAMIA paper; bug fixes and new functionalities have since been implemented and may affect the numerical results.
