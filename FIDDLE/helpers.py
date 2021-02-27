@@ -171,7 +171,7 @@ def smart_dummify_impute(x):
 def make_float(v):
     try:
         return float(v)
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return v
     assert False
 
@@ -179,7 +179,7 @@ def is_numeric(v):
     try:
         float(v)
         return True
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return False
     assert False
 
