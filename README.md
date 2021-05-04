@@ -6,13 +6,7 @@ Try a quick demo here: [tiny.cc/FIDDLE-demo](https://tiny.cc/FIDDLE-demo)
 
 Contributions and feedback are welcome; please submit issues on the GitHub site: https://github.com/MLD3/FIDDLE/issues. 
 
-## Publications & Resources
-- Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
-- Authors: Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, Michael W. Sjoding, and Jenna Wiens.
-- Published in JAMIA (Journal of the American Medical Informatics Association), October 2020: [article link](https://doi.org/10.1093/jamia/ocaa139)
-- Previously presented at MLHC 2019 (<i>[Machine Learning for Healthcare](https://www.mlforhc.org/)</i>) as a [clinical abstract](https://www.mlforhc.org/s/Sjoding-jete.pdf)
-- News coverage on HealthcareITNews: [link](https://www.healthcareitnews.com/news/new-framework-helps-streamline-ehr-data-extraction)
-- [Poster](https://www.dropbox.com/s/5rid9x12w6f8u50/MLHC%202019%20-%20FIDDLE%20poster.pdf?dl=0) | [Slides](https://www.dropbox.com/s/e6e1tfen2ae85hn/FIDDLE%20-%20MiCHAMP%2020200110%20final.pptx?dl=0)
+To enhance reproducibility, we have released [preprocessed features for MIMIC-III and eICU](https://physionet.org/content/mimic-eicu-fiddle-feature/1.0.0/) and [accompanying code](https://github.com/MLD3/FIDDLE-experiments/tree/jamia-replication) for the experiments in the paper. Refer to more details on these linked websites. 
 
 If you use FIDDLE in your research, please cite the following publication:
 
@@ -100,7 +94,15 @@ The user-defined arguments of FIDDLE include: T, dt, theta_1, theta_2, theta_fre
 Finally, for the summary statistics functions, we included by default the most basic statistics functions are minimum, maximum, and mean. If on average, we expect more than one value per time bin, then we can also include higher order statistics such as standard deviation and linear slope.
 
 
-
 ## Experiments
 
 In this repository, we release FIDDLE as a standalone software. In order to show the flexibility and utility of FIDDLE, we conducted several experiments using data from MIMIC-III and eICU. The code to reproduce the results are located at https://github.com/MLD3/FIDDLE-experiments. The experiments were performed using FIDDLE v0.1.0 and reported in the JAMIA paper; bug fixes and new functionalities have since been implemented and may affect the numerical results.
+
+
+## Publications & Resources
+- Title: <b>Democratizing EHR analyses with FIDDLE: a flexible data-driven preprocessing pipeline for structured clinical data.</b>
+- Authors: Shengpu Tang, Parmida Davarmanesh, Yanmeng Song, Danai Koutra, Michael W. Sjoding, and Jenna Wiens.
+- Published in JAMIA (Journal of the American Medical Informatics Association), October 2020: [article link](https://doi.org/10.1093/jamia/ocaa139)
+- Previously presented at MLHC 2019 (<i>[Machine Learning for Healthcare](https://www.mlforhc.org/)</i>) as a [clinical abstract](https://www.mlforhc.org/s/Sjoding-jete.pdf)
+- News coverage on HealthcareITNews: [link](https://www.healthcareitnews.com/news/new-framework-helps-streamline-ehr-data-extraction)
+- [Poster](https://www.dropbox.com/s/5rid9x12w6f8u50/MLHC%202019%20-%20FIDDLE%20poster.pdf?dl=0) | [Slides](https://www.dropbox.com/s/e6e1tfen2ae85hn/FIDDLE%20-%20MiCHAMP%2020200110%20final.pptx?dl=0)
