@@ -159,6 +159,9 @@ def smart_qcut_dummify(x, bin_edges, use_ordinal_encoding=False):
                     out.loc[m, col_names[i]] = (z.loc[m] > bin_edge).astype(int)
                 out = pd.concat([out, pd.get_dummies(z.where(~m, np.nan), prefix=z.name)], axis=1)
             else:
+#                 bin_edges = np.nanpercentile(z.loc[m].astype(float).to_numpy(), [0, 20, 40, 60, 80, 100])
+#                 bin_edges = np.unique(bin_edges)
+#                 z.loc[m] = pd.cut(z.loc[m].to_numpy(), bin_edges, duplicates='drop')
                 z.loc[m] = pd.cut(z.loc[m].astype(float).to_numpy(), bin_edges, duplicates='drop', include_lowest=True)
                 out = pd.get_dummies(z, prefix=z.name)
     else:
@@ -177,17 +180,21 @@ def smart_dummify_impute(x):
         return x
 
 def make_float(v):
+    if v is None:
+        return np.nan
     try:
         return float(v)
-    except (ValueError, TypeError):
+    except ValueError:
         return v
     assert False
 
 def is_numeric(v):
+    if v is None:
+        return np.nan
     try:
         float(v)
         return True
-    except (ValueError, TypeError):
+    except ValueError:
         return False
     assert False
 
