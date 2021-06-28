@@ -71,36 +71,36 @@ def parse_variable_data_type(df_data, args):
     var_names = [v for v, ty in args.value_type_override.items() if 'hierarchical' in ty.lower()]
     if len(var_names) == 0: # No hierarchical values
         pass
+    else:
+        for var_name in var_names:
+            var_type = args.value_type_override[var_name]
+            df_var = df.loc[df[var_col] == var_name, val_col]
+            if var_type.lower() == 'hierarchical_icd':
+                # need to figure out ICD version
+                raise NotImplementedError
+            elif var_type.lower() == 'hierarchical_icd9':
+                df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=9))
+            elif var_type.lower() == 'hierarchical_icd10':
+                df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=10))
+            else:
+                df_var = df_var.apply(lambda s: s.split(hierarchical_sep))
 
-    for var_name in var_names:
-        var_type = args.value_type_override[var_name]
-        df_var = df.loc[df[var_col] == var_name, val_col]
-        if var_type.lower() == 'hierarchical_icd':
-            # need to figure out ICD version
-            raise NotImplementedError
-        elif var_type.lower() == 'hierarchical_icd9':
-            df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=9))
-        elif var_type.lower() == 'hierarchical_icd10':
-            df_var = df_var.apply(lambda s: map_icd_hierarchy(s, version=10))
-        else:
-            df_var = df_var.apply(lambda s: s.split(hierarchical_sep))
+            # Assign mapped values back to original df
+            df.loc[df[var_col] == var_name, val_col] = df_var
 
-        # Assign mapped values back to original df
-        df.loc[df[var_col] == var_name, val_col] = df_var
+        # Only encode selected levels
+        df_nonhier = df[~df[var_col].isin(var_names)]
+        df_hier = df[df[var_col].isin(var_names)]
+        df_hier_levels = []
+        for hier_level in args.hierarchical_levels:
+            # encode level if available
+            df_hier_level = df_hier.copy()
+            df_hier_level[val_col] = df_hier_level[val_col].apply(lambda h: h[min(hier_level, len(h))])
+            df_hier_levels.append(df_hier_level)
+        df_hier_levels = pd.concat(df_hier_levels).drop_duplicates()
 
-    # Only encode selected levels
-    df_nonhier = df[~df[var_col].isin(var_names)]
-    df_hier = df[df[var_col].isin(var_names)]
-    df_hier_levels = []
-    for hier_level in args.hierarchical_levels:
-        # encode level if available
-        df_hier_level = df_hier.copy()
-        df_hier_level[val_col] = df_hier_level[val_col].apply(lambda h: h[min(hier_level, len(h))])
-        df_hier_levels.append(df_hier_level)
-    df_hier_levels = pd.concat(df_hier_levels).drop_duplicates()
-
-    # Combine hierarchical and non-hierarchical data
-    df = pd.concat([df_nonhier, df_hier_levels])
+        # Combine hierarchical and non-hierarchical data
+        df = pd.concat([df_nonhier, df_hier_levels])
 
     ## 2. Detect value types
     data_types = []
