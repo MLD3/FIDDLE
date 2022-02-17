@@ -90,7 +90,7 @@ def get_frequent_numeric_variables(df_time_series, variables, threshold, args):
     T, dt = args.T, args.dt
     
     df_types = pd.read_csv(output_dir + 'value_types.csv').set_index(var_col)['value_type']
-    numeric_vars = [col for col in variables if df_types[col] == 'Numeric']
+    numeric_vars = [col for col in variables if df_types.get(col) == 'Numeric']
     df_num_counts = calculate_variable_counts(df_time_series, df_population)[numeric_vars] #gets the count of each variable for each patient. 
     variables_num_freq = df_num_counts.columns[df_num_counts.mean() >= threshold * np.floor(T/dt)]
     return variables_num_freq

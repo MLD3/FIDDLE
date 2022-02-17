@@ -72,6 +72,7 @@ def parse_variable_data_type(df_data, args):
     if len(var_names) == 0: # No hierarchical values
         pass
     else:
+        print('Parsing hierarchical values')
         for var_name in var_names:
             var_type = args.value_type_override[var_name]
             df_var = df.loc[df[var_col] == var_name, val_col]
@@ -143,12 +144,12 @@ def parse_variable_data_type(df_data, args):
     var_names = [v for v, ty in data_types if 'numeric' not in ty.lower() and 'none' not in ty.lower()]
     df_non_num = df[df[var_col].isin(var_names)].copy()
     dup_ = df_non_num.duplicated(subset=[ID_col, t_col, var_col], keep=False)
-    df_non_num_dup = df_non_num[dup_]
+    df_non_num_dup = df_non_num[dup_].copy()
     dup_var_names = df_non_num_dup[var_col].unique()
     df_non_num_dup[var_col] = df_non_num_dup[var_col].astype(str) + ':' + df_non_num_dup[val_col].astype(str)
     df_non_num_dup[val_col] = 1
-    df_non_num[dup_] = df_non_num_dup
-    df[df[var_col].isin(var_names)] = df_non_num
+    df_non_num.loc[dup_, :] = df_non_num_dup
+    df.loc[df[var_col].isin(var_names), :] = df_non_num
 
     return df, df_types['value_type']
 

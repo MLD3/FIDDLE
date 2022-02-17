@@ -1,0 +1,5 @@
+hierarchical_sep: ':'
+hierarchical_levels: [0]
+
+value_types:
+    ICD9_CODE: hierarchical_ICD9
