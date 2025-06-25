@@ -465,7 +465,7 @@ def transform_time_series_table(df_in, args):
     # Handle IDs not in the table
     df_original = list(out.values())[0]
     df_copy = pd.DataFrame().reindex_like(df_original)
-    for i, j in df_original.dtypes.iteritems():
+    for i, j in df_original.dtypes.items():
         if i.endswith('_mask'):
             assert j == bool
             df_copy[i] = False
@@ -500,7 +500,7 @@ def transform_time_series_table(df_in, args):
         [(ID, t_) for t_ in list(df_.index)]
         for ID, df_ in sorted(D_timeseries.items())
     ], [])
-    index = pd.Index(index, names=['ID', 't_range'])
+    index = pd.MultiIndex.from_tuples(index, names=['ID', 't_range'])
     assert len(index) == N * L
 
     ## Assume all dataframes have the same columns, used after concatenation
